@@ -2,6 +2,7 @@ package dev.aabstractt.bridging;
 
 import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.manager.SchematicManager;
+import lombok.NonNull;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
@@ -10,8 +11,11 @@ public final class AbstractPlugin extends JavaPlugin {
 
     private static @Nullable AbstractPlugin instance = null;
 
-    @Nullable
-    public static AbstractPlugin getInstance() {
+    public static @NonNull AbstractPlugin getInstance() {
+        if (instance == null) {
+            throw new NullPointerException("AbstractPlugin instance is null");
+        }
+
         return instance;
     }
 
