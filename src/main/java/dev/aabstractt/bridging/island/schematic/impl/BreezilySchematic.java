@@ -25,7 +25,7 @@ public final class BreezilySchematic extends LocalSchematic {
         this.pasteBoth(
                 island.getCenter(),
                 island.getCenter().add(
-                        ((BreezilyIsland) island).getBreezilyIslandDirection().getDistanceFor(distance),
+                        ((BreezilyIsland) island).getBreezilyIslandDirection().getDistance(distance),
                         ((BreezilyIsland) island).getBreezilyIslandHeight().getDelta(),
                         distance
                 )

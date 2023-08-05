@@ -1,14 +1,9 @@
 package dev.aabstractt.bridging.island.breezily;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-/**
- * This code has been created by
- * gatogamer#6666 A.K.A. gatogamer.
- * If you want to use my code, please
- * ask first, and give me the credits.
- * Arigato! n.n
- */
+@RequiredArgsConstructor @Getter
 public enum BreezilyIslandHeight {
     NORMAL(0),
     SIXTEEN_BLOCKS(16),
@@ -16,12 +11,7 @@ public enum BreezilyIslandHeight {
     SIXTYFOUR_BLOCKS(64),
     EXTREME(128);
 
-    @Getter
     private final int delta;
-
-    BreezilyIslandHeight(int delta) {
-        this.delta = delta;
-    }
 
     public BreezilyIslandHeight next() {
         BreezilyIslandHeight[] values = BreezilyIslandHeight.values();
@@ -34,7 +24,6 @@ public enum BreezilyIslandHeight {
 
     public BreezilyIslandHeight previous() {
         BreezilyIslandHeight[] values = BreezilyIslandHeight.values();
-
 
         try {
             return values[this.ordinal() - 1];
