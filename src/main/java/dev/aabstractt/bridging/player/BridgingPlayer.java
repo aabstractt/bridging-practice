@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -20,8 +22,23 @@ public final class BridgingPlayer {
 
     private int islandId = 0;
 
+    public @Nullable Player toBukkitPlayer() {
+        return Bukkit.getPlayer(this.uniqueId);
+    }
+
+    public void teleport(@NonNull Location location) {
+        Player bukkitPlayer = this.toBukkitPlayer();
+        if (bukkitPlayer == null) return;
+
+        bukkitPlayer.teleport(location);
+    }
+
     public static @Nullable BridgingPlayer byPlayer(@NonNull Player bukkitPlayer) {
-        return bridgingPlayersStored.get(bukkitPlayer.getUniqueId());
+        return byId(bukkitPlayer.getUniqueId());
+    }
+
+    public static @Nullable BridgingPlayer byId(@NonNull UUID uniqueId) {
+        return bridgingPlayersStored.get(uniqueId);
     }
 
     public static void store(@NonNull BridgingPlayer bridgingPlayer) {

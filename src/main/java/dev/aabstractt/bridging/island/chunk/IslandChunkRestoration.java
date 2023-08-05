@@ -2,12 +2,15 @@ package dev.aabstractt.bridging.island.chunk;
 
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.utils.cuboid.Cuboid;
+import lombok.Getter;
 import lombok.NonNull;
 import net.minecraft.server.v1_8_R3.ChunkSection;
 import org.bukkit.Chunk;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 
 public final class IslandChunkRestoration {
+
+    @Getter private static final @NonNull IslandChunkRestoration instance = new IslandChunkRestoration();
 
     private final @NonNull VanillaChunkReset vanillaChunkReset = new VanillaChunkReset();
 

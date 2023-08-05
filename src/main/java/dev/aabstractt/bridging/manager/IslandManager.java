@@ -1,7 +1,6 @@
 package dev.aabstractt.bridging.manager;
 
 import dev.aabstractt.bridging.AbstractPlugin;
-import dev.aabstractt.bridging.island.chunk.IslandChunkRestoration;
 import dev.aabstractt.bridging.island.schematic.LocalSchematic;
 import dev.aabstractt.bridging.utils.WorldEditUtils;
 import lombok.Getter;
@@ -17,8 +16,6 @@ import java.util.Map;
 public final class IslandManager {
 
     @Getter private final static @NonNull IslandManager instance = new IslandManager();
-
-    private final @NonNull IslandChunkRestoration chunkRestoration = new IslandChunkRestoration();
 
     private final @NonNull Map<String, LocalSchematic> bridgingSchematics = new HashMap<>();
 
