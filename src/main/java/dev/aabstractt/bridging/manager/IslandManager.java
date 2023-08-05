@@ -1,12 +1,17 @@
 package dev.aabstractt.bridging.manager;
 
+import dev.aabstractt.bridging.AbstractPlugin;
 import dev.aabstractt.bridging.island.chunk.IslandChunkRestoration;
+import dev.aabstractt.bridging.island.schematic.LocalSchematic;
+import dev.aabstractt.bridging.utils.WorldEditUtils;
 import lombok.Getter;
 import lombok.NonNull;
-import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
-import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
-import org.bukkit.entity.Player;
+import org.bukkit.configuration.ConfigurationSection;
+
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 public final class IslandManager {
@@ -15,15 +20,32 @@ public final class IslandManager {
 
     private final @NonNull IslandChunkRestoration chunkRestoration = new IslandChunkRestoration();
 
-    public void init() {
+    private final @NonNull Map<String, LocalSchematic> bridgingSchematics = new HashMap<>();
 
+    public void init() {
+        ConfigurationSection mainSection = AbstractPlugin.getInstance().getConfig().getConfigurationSection("types");
+        if (mainSection == null) {
+            throw new NullPointerException("Cannot load types section");
+        }
+
+        for (String type : mainSection.getKeys(false)) {
+            List<String> schematics = mainSection.getStringList(type);
+            if (schematics == null) continue;
+            if (schematics.isEmpty()) continue;
+
+            for (String schematicName : schematics) {
+                LocalSchematic localSchematic = WorldEditUtils.wrapLocalSchematic(type, schematicName);
+                if (localSchematic == null) {
+                    throw new NullPointerException("Cannot load  " + schematicName + " schematic for type " + type);
+                }
+
+                this.bridgingSchematics.put(schematicName, localSchematic);
+            }
+        }
     }
 
-    public void sendChunkPacket(@NonNull CraftChunk chunk, @NonNull Player... bukkitPlayers) {
-        PacketPlayOutMapChunk packetPlayOutMapChunk = new PacketPlayOutMapChunk(chunk.getHandle(), true, 20);
-
-        for (Player bukkitPlayer : bukkitPlayers) {
-            ((CraftPlayer) bukkitPlayer).getHandle().playerConnection.sendPacket(packetPlayOutMapChunk);
-        }
+    @SuppressWarnings("unchecked")
+    public @Nullable <T extends LocalSchematic> T getBridgingSchematic(@NonNull String schematicName) {
+        return (T) this.bridgingSchematics.get(schematicName);
     }
 }
