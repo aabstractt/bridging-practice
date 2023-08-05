@@ -7,8 +7,8 @@ import lombok.NonNull;
 
 public final class BreezilySchematic extends LocalSchematic {
 
-    public BreezilySchematic(@NonNull String firstSchematicName, @NonNull String secondSchematicName) {
-        super(firstSchematicName, secondSchematicName);
+    public BreezilySchematic(@NonNull String mode, @NonNull String originalName, @NonNull String firstSchematicName, @NonNull String secondSchematicName) {
+        super(mode, originalName, firstSchematicName, secondSchematicName);
     }
 
     @Override

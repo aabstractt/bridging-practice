@@ -1,6 +1,7 @@
 package dev.aabstractt.bridging.player;
 
 import com.google.common.collect.Maps;
+import dev.aabstractt.bridging.island.breezily.BreezilyIsland;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,11 @@ public final class BridgingPlayer {
 
     private final static @NonNull Map<UUID, BridgingPlayer> bridgingPlayersStored = Maps.newConcurrentMap();
 
-    private @NonNull UUID uniqueId;
-    private @NonNull String name;
+    private final @NonNull UUID uniqueId;
+    private final @NonNull String name;
+
+    private @NonNull String mode = BreezilyIsland.ORIGINAL_NAME;
+    private @NonNull String schematicName = "default";
 
     private int islandId = 0;
 

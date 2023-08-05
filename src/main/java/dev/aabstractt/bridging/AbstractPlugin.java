@@ -2,7 +2,6 @@ package dev.aabstractt.bridging;
 
 import dev.aabstractt.bridging.listener.PlayerJoinListener;
 import dev.aabstractt.bridging.manager.IslandManager;
-import dev.aabstractt.bridging.manager.SchematicManager;
 import lombok.NonNull;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -25,7 +24,6 @@ public final class AbstractPlugin extends JavaPlugin {
         instance = this;
 
         IslandManager.getInstance().init();
-        SchematicManager.getInstance().init();
 
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
     }

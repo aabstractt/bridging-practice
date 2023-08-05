@@ -10,6 +10,10 @@ import org.bukkit.Location;
 @RequiredArgsConstructor @Data
 public abstract class LocalSchematic {
 
+    protected final @NonNull String mode;
+
+    protected final @NonNull String originalName;
+
     protected final @NonNull String firstSchematicName;
     protected final @NonNull String secondSchematicName;
 

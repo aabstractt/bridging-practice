@@ -9,6 +9,7 @@ import dev.aabstractt.bridging.utils.cuboid.Cuboid;
 import io.netty.util.internal.ConcurrentSet;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.server.v1_8_R3.ChunkSection;
 import org.bukkit.Location;
 
@@ -18,38 +19,36 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-@Data
+@RequiredArgsConstructor @Data
 public abstract class Island {
+
+    protected final int offset;
+    protected final @NonNull UUID id;
 
     protected @Nullable Location center = null;
     protected @Nullable Cuboid cuboid = null;
 
     protected @Nullable String schematicName = null;
+    protected @Nullable UUID ownership = null;
+
+    protected boolean updating = false;
+
     protected int distance = 0;
 
     protected @NonNull Set<@NonNull UUID> members = new ConcurrentSet<>();
 
     protected final @NonNull Map<String, ChunkSection[]> chunks = Maps.newConcurrentMap();
 
-    public void paste() throws IllegalAccessException {
+    public abstract @NonNull String getMode();
+
+    public void paste(@NonNull LocalSchematic localSchematic) throws IllegalAccessException {
         if (this.schematicName == null) {
             throw new IllegalArgumentException("Island must have a schematic name");
-        }
-
-        if (this.center == null) {
-            throw new IllegalArgumentException("Island must have a center");
-        }
-
-        LocalSchematic localSchematic = IslandManager.getInstance().getBridgingSchematic(this.schematicName);
-        if (localSchematic == null) {
-            throw new NullPointerException("Cannot load " + this.schematicName + " schematic");
         }
 
         IslandChunkRestoration.getInstance().copy(this);
 
         localSchematic.paste(this);
-
-        this.membersForEach(bridgingPlayer -> bridgingPlayer.teleport(this.center));
     }
 
     public void registerChunkSections(@NonNull String chunkHash, @NonNull ChunkSection[] chunkSections) {

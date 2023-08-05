@@ -1,5 +1,6 @@
 package dev.aabstractt.bridging.listener;
 
+import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
@@ -14,9 +15,16 @@ public final class PlayerJoinListener implements Listener {
         Player bukkitPlayer = ev.getPlayer();
         if (!bukkitPlayer.isOnline()) return;
 
-        BridgingPlayer.store(new BridgingPlayer(bukkitPlayer.getUniqueId(), bukkitPlayer.getName()));
+        BridgingPlayer bridgingPlayer = new BridgingPlayer(bukkitPlayer.getUniqueId(), bukkitPlayer.getName());
+        BridgingPlayer.store(bridgingPlayer);
 
         // TODO: Find an available island for the player to join.
         // TODO: Freeze the player until we find an island for them to join.
+
+        IslandManager.getInstance().findOne(bridgingPlayer).whenComplete((island, throwable) -> {
+            if (throwable != null) return;
+
+            island.membersForEach(temporarilyBridgingPlayer -> temporarilyBridgingPlayer.teleport(island.getCenter()));
+        });
     }
 }

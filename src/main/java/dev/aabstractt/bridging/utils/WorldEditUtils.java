@@ -31,12 +31,12 @@ public final class WorldEditUtils {
         }
     }
 
-    public static @Nullable LocalSchematic wrapLocalSchematic(@NonNull String type, @NonNull String schematicName) {
-        String firstSchematicName = schematicName + "-start";
-        String secondSchematicName = schematicName + "-end";
+    public static @Nullable LocalSchematic wrapLocalSchematic(@NonNull String mode, @NonNull String originalName) {
+        String firstSchematicName = originalName + "-start";
+        String secondSchematicName = originalName + "-end";
 
-        return switch (type) {
-            case "breezily" -> new BreezilySchematic(firstSchematicName, secondSchematicName);
+        return switch (mode) {
+            case "breezily" -> new BreezilySchematic(mode, originalName, firstSchematicName, secondSchematicName);
             case "godbridge" -> null;
             default -> null;
         };
