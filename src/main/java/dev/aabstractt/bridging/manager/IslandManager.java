@@ -7,7 +7,7 @@ import dev.aabstractt.bridging.island.breezily.BreezilyIsland;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandDirection;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHeight;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHits;
-import dev.aabstractt.bridging.island.schematic.LocalSchematic;
+import dev.aabstractt.bridging.island.schematic.ModeSchematic;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.player.ModeData;
 import dev.aabstractt.bridging.utils.WorldEditUtils;
@@ -40,7 +40,7 @@ public final class IslandManager {
         return offset;
     };
 
-    private final @NonNull Map<String, LocalSchematic> bridgingSchematics = new HashMap<>();
+    private final @NonNull Map<String, ModeSchematic> bridgingSchematics = new HashMap<>();
 
     private final @NonNull List<@NonNull Integer> availableOffsets = new ArrayList<>();
     private final @NonNull List<Integer> unavailableOffsets = new ArrayList<>();
@@ -60,12 +60,12 @@ public final class IslandManager {
             if (schematics.isEmpty()) continue;
 
             for (String schematicName : schematics) {
-                LocalSchematic localSchematic = WorldEditUtils.wrapLocalSchematic(type, schematicName);
-                if (localSchematic == null) {
+                ModeSchematic modeSchematic = WorldEditUtils.wrapModeSchematic(type, schematicName);
+                if (modeSchematic == null) {
                     throw new NullPointerException("Cannot load  " + schematicName + " schematic for type " + type);
                 }
 
-                this.bridgingSchematics.put(type + "-" + schematicName, localSchematic);
+                this.bridgingSchematics.put(type + "-" + schematicName, modeSchematic);
             }
         }
     }
@@ -89,8 +89,8 @@ public final class IslandManager {
             return CompletableFuture.completedFuture(island);
         }
 
-        LocalSchematic localSchematic = this.getBridgingSchematic(bridgingPlayer.getCompleteSchematicName());
-        if (localSchematic == null) {
+        ModeSchematic modeSchematic = this.getBridgingSchematic(bridgingPlayer.getCompleteSchematicName());
+        if (modeSchematic == null) {
             return CompletableFuture.failedFuture(new NullPointerException("Cannot find schematic " + modeData.getSchematicName() + " for mode " + modeData.getName()));
         }
 
@@ -109,7 +109,7 @@ public final class IslandManager {
             );
 
             try {
-                finalIsland.paste(localSchematic);
+                finalIsland.paste(modeSchematic);
             } catch (Exception e) {
                 throw new UnsupportedOperationException("Cannot paste island " + finalIsland.getId(), e);
             }
@@ -143,7 +143,7 @@ public final class IslandManager {
     }
 
     @SuppressWarnings("unchecked")
-    public @Nullable <T extends LocalSchematic> T getBridgingSchematic(@NonNull String schematicName) {
+    public @Nullable <T extends ModeSchematic> T getBridgingSchematic(@NonNull String schematicName) {
         return (T) this.bridgingSchematics.get(schematicName);
     }
 }

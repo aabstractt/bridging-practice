@@ -1,6 +1,6 @@
 package dev.aabstractt.bridging.utils;
 
-import dev.aabstractt.bridging.island.schematic.LocalSchematic;
+import dev.aabstractt.bridging.island.schematic.ModeSchematic;
 import dev.aabstractt.bridging.island.schematic.impl.BreezilySchematic;
 import lombok.NonNull;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
@@ -31,7 +31,7 @@ public final class WorldEditUtils {
         }
     }
 
-    public static @Nullable LocalSchematic wrapLocalSchematic(@NonNull String mode, @NonNull String originalName) {
+    public static @Nullable ModeSchematic wrapModeSchematic(@NonNull String mode, @NonNull String originalName) {
         String firstSchematicName = originalName + "-start";
         String secondSchematicName = originalName + "-end";
 
