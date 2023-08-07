@@ -28,7 +28,7 @@ public final class BridgingPlayer {
 
     private final @NonNull Set<ModeData> modesData = new ConcurrentSet<>();
 
-    private int islandId = 0;
+    private boolean joined = false;
 
     public @NonNull String getCompleteSchematicName() {
         return this.mode + "-" + this.getModeData(this.mode).getSchematicName();

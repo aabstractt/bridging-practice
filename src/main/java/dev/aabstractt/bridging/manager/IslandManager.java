@@ -14,6 +14,7 @@ import dev.aabstractt.bridging.utils.WorldEditUtils;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -69,10 +70,21 @@ public final class IslandManager {
         }
     }
 
-    public @NonNull CompletableFuture<@NonNull Island> findOne(@NonNull BridgingPlayer bridgingPlayer, @NonNull ModeData modeData) {
-        UUID islandUniqueId = this.islandIds.get(bridgingPlayer.getUniqueId());
+    public @Nullable Island byPlayer(@Nullable Player bukkitPlayer) {
+        if (bukkitPlayer == null || !bukkitPlayer.isOnline()) {
+            return null;
+        }
 
-        Island island = islandUniqueId != null ? this.islandsStored.get(islandUniqueId) : null;
+        UUID islandUniqueId = this.islandIds.get(bukkitPlayer.getUniqueId());
+        if (islandUniqueId == null) {
+            return null;
+        }
+
+        return this.islandsStored.get(islandUniqueId);
+    }
+
+    public @NonNull CompletableFuture<@NonNull Island> findOne(@NonNull BridgingPlayer bridgingPlayer, @NonNull ModeData modeData) {
+        Island island = this.byPlayer(bridgingPlayer.toBukkitPlayer());
         if (island != null) {
             return CompletableFuture.completedFuture(island);
         }
@@ -104,6 +116,9 @@ public final class IslandManager {
 
             this.islandsStored.put(finalIsland.getId(), finalIsland);
             this.unavailableOffsets.add(offset.get());
+
+            finalIsland.setOwnership(bridgingPlayer.getUniqueId());
+            finalIsland.getMembers().add(bridgingPlayer.getUniqueId());
 
             return finalIsland;
         });

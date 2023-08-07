@@ -1,5 +1,6 @@
 package dev.aabstractt.bridging;
 
+import dev.aabstractt.bridging.listener.AsyncPlayerPreLoginListener;
 import dev.aabstractt.bridging.listener.PlayerJoinListener;
 import dev.aabstractt.bridging.manager.IslandManager;
 import lombok.NonNull;
@@ -25,6 +26,7 @@ public final class AbstractPlugin extends JavaPlugin {
 
         IslandManager.getInstance().init();
 
+        this.getServer().getPluginManager().registerEvents(new AsyncPlayerPreLoginListener(), this);
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
     }
 }

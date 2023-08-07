@@ -1,12 +1,16 @@
 package dev.aabstractt.bridging.listener;
 
+import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.player.BridgingPlayer;
+import dev.aabstractt.bridging.utils.cuboid.Cuboid;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+
+import java.util.Objects;
 
 public final class PlayerJoinListener implements Listener {
 
@@ -15,16 +19,29 @@ public final class PlayerJoinListener implements Listener {
         Player bukkitPlayer = ev.getPlayer();
         if (!bukkitPlayer.isOnline()) return;
 
-        BridgingPlayer bridgingPlayer = new BridgingPlayer(bukkitPlayer.getUniqueId(), bukkitPlayer.getName());
-        BridgingPlayer.store(bridgingPlayer);
+        BridgingPlayer bridgingPlayer = BridgingPlayer.byPlayer(bukkitPlayer);
+        if (bridgingPlayer == null) return;
 
-        // TODO: Find an available island for the player to join.
-        // TODO: Freeze the player until we find an island for them to join.
+        bridgingPlayer.setJoined(true);
 
-        IslandManager.getInstance().findOne(bridgingPlayer, bridgingPlayer.getModeData(bridgingPlayer.getMode())).whenComplete((island, throwable) -> {
-            if (throwable != null) return;
+        Island island = IslandManager.getInstance().byPlayer(bukkitPlayer);
+        if (island == null) {
+            return;
+        }
 
-            island.membersForEach(temporarilyBridgingPlayer -> temporarilyBridgingPlayer.teleport(island.getCenter()));
-        });
+        if (!Objects.equals(island.getOwnership(), bukkitPlayer.getUniqueId())) {
+            return;
+        }
+
+        Cuboid cuboid = island.getCuboid();
+        if (cuboid == null) {
+            return;
+        }
+
+        if (cuboid.contains(bukkitPlayer.getLocation())) {
+            return;
+        }
+
+        bukkitPlayer.teleport(island.getCenter());
     }
 }
