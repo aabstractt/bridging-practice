@@ -7,12 +7,14 @@ import dev.aabstractt.bridging.island.breezily.BreezilyIsland;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandDirection;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHeight;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHits;
+import dev.aabstractt.bridging.island.chunk.IslandChunkRestoration;
 import dev.aabstractt.bridging.island.schematic.ModeSchematic;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.player.ModeData;
 import dev.aabstractt.bridging.utils.WorldEditUtils;
 import lombok.Getter;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -125,6 +127,65 @@ public final class IslandManager {
 
             return finalIsland;
         });
+    }
+
+    public void closeIsland(@NonNull BridgingPlayer bridgingPlayer) throws IllegalAccessException {
+        Island island = this.byPlayer(bridgingPlayer.toBukkitPlayer());
+        if (island == null) {
+            throw new IllegalAccessException("Cannot find island for " + bridgingPlayer.getName());
+        }
+
+        this.closeIsland(island);
+    }
+
+    public void closeIsland(@NonNull Island island) throws IllegalAccessException {
+        UUID ownership = island.getOwnership();
+        if (ownership == null) {
+            throw new IllegalAccessException("Cannot find ownership for " + island.getId());
+        }
+
+        this.islandsStored.remove(island.getId());
+        this.islandIds.remove(ownership);
+
+        this.availableOffsets.add(island.getOffset());
+        this.unavailableOffsets.remove(island.getOffset());
+
+        IslandChunkRestoration.getInstance().reset(island);
+
+        island.membersForEach(temporarilyBridgingPlayer -> {
+            Player bukkitPlayer = temporarilyBridgingPlayer.toBukkitPlayer();
+            if (bukkitPlayer == null) {
+                return;
+            }
+
+            bukkitPlayer.teleport(AbstractPlugin.getInstance().getSpawnLocation());
+
+            if (Objects.equals(temporarilyBridgingPlayer.getUniqueId(), ownership)) {
+                return;
+            }
+
+            this.findOne(
+                    temporarilyBridgingPlayer,
+                    temporarilyBridgingPlayer.getModeData(temporarilyBridgingPlayer.getMode())
+            ).whenComplete((newIsland, throwable) -> {
+                if (!bukkitPlayer.isOnline()) return;
+
+                if (throwable != null) {
+                    bukkitPlayer.kickPlayer("Cannot find island");
+
+                    Bukkit.getLogger().severe("Cannot find island for " + temporarilyBridgingPlayer.getName());
+
+                    return;
+                }
+
+                newIsland.setOwnership(temporarilyBridgingPlayer.getUniqueId());
+                newIsland.getMembers().add(temporarilyBridgingPlayer.getUniqueId());
+
+                bukkitPlayer.teleport(newIsland.getCenter());
+            });
+        });
+
+        island.getMembers().clear();
     }
 
     private @NonNull Island wrapIsland(

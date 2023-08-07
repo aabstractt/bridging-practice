@@ -27,7 +27,10 @@ public final class PlayerQuitListener implements Listener {
             return;
         }
 
-        // TODO: Remove the island from the cache
-        // TODO: And add it to the queue to remove it
+        try {
+            IslandManager.getInstance().closeIsland(island);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

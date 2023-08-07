@@ -4,7 +4,10 @@ import dev.aabstractt.bridging.listener.AsyncPlayerPreLoginListener;
 import dev.aabstractt.bridging.listener.PlayerJoinListener;
 import dev.aabstractt.bridging.manager.IslandManager;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitWorker;
 
 import javax.annotation.Nullable;
 
@@ -28,5 +31,9 @@ public final class AbstractPlugin extends JavaPlugin {
 
         this.getServer().getPluginManager().registerEvents(new AsyncPlayerPreLoginListener(), this);
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+    }
+
+    public @NonNull Location getSpawnLocation() {
+        return Bukkit.getWorlds().get(0).getSpawnLocation();
     }
 }
