@@ -31,6 +31,25 @@
             <version>1.18.26</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- FastAsyncWorldEdit -->
+        <dependency>
+            <groupId>com.boydti</groupId>
+            <artifactId>FAWE</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/FastAsyncWorldEdit.jar</systemPath>
+        </dependency>
+
+        <!-- WorldEdit -->
+        <dependency>
+            <groupId>com.sk89q.worldedit.bukkit</groupId>
+            <artifactId>WorldEditPlugin</artifactId>
+            <version>6.1</version>
+            <scope>system</scope>
+            <type>jar</type>
+            <systemPath>${basedir}/libs/worldedit-bukkit-6.1.7.3.jar</systemPath>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

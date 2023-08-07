@@ -3,8 +3,9 @@ package dev.aabstractt.bridging.listener;
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.player.BridgingPlayer;
-import dev.aabstractt.bridging.utils.cuboid.Cuboid;
+import dev.aabstractt.bridging.utils.WorldEditUtils;
 import lombok.NonNull;
+import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,15 +34,15 @@ public final class PlayerJoinListener implements Listener {
             return;
         }
 
-        Cuboid cuboid = island.getCuboid();
-        if (cuboid == null) {
-            return;
-        }
-
-        if (cuboid.contains(bukkitPlayer.getLocation())) {
+        if (island.isInsideCuboid(bukkitPlayer.getLocation())) {
             return;
         }
 
         bukkitPlayer.teleport(island.getCenter());
+
+        WorldEditUtils.sendChunkPacket(
+                (CraftChunk) bukkitPlayer.getWorld().getChunkAt(island.getCenter()),
+                bukkitPlayer
+        );
     }
 }

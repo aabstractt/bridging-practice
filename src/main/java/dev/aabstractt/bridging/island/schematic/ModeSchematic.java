@@ -23,4 +23,8 @@ public abstract class ModeSchematic {
         WorldEditUtils.paste(this.firstSchematicName, firstLocation, true);
         WorldEditUtils.paste(this.secondSchematicName, secondLocation, true);
     }
+
+    public @NonNull String getCompleteName() {
+        return this.mode + "-" + this.originalName;
+    }
 }

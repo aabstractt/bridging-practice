@@ -65,7 +65,10 @@ public final class IslandManager {
                     throw new NullPointerException("Cannot load  " + schematicName + " schematic for type " + type);
                 }
 
-                this.bridgingSchematics.put(type + "-" + schematicName, modeSchematic);
+                WorldEditUtils.initializeSchematic(modeSchematic.getFirstSchematicName());
+                WorldEditUtils.initializeSchematic(modeSchematic.getSecondSchematicName());
+
+                this.bridgingSchematics.put(modeSchematic.getCompleteName(), modeSchematic);
             }
         }
     }
