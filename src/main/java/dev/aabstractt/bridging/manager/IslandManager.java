@@ -9,6 +9,7 @@ import dev.aabstractt.bridging.island.breezily.BreezilyIslandHeight;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHits;
 import dev.aabstractt.bridging.island.schematic.LocalSchematic;
 import dev.aabstractt.bridging.player.BridgingPlayer;
+import dev.aabstractt.bridging.player.ModeData;
 import dev.aabstractt.bridging.utils.WorldEditUtils;
 import lombok.Getter;
 import lombok.NonNull;
@@ -63,19 +64,23 @@ public final class IslandManager {
                     throw new NullPointerException("Cannot load  " + schematicName + " schematic for type " + type);
                 }
 
-                this.bridgingSchematics.put(schematicName, localSchematic);
+                this.bridgingSchematics.put(type + "-" + schematicName, localSchematic);
             }
         }
     }
 
-    public @NonNull CompletableFuture<@NonNull Island> findOne(@NonNull BridgingPlayer bridgingPlayer) {
+    public @NonNull CompletableFuture<@NonNull Island> findOne(@NonNull BridgingPlayer bridgingPlayer, @NonNull ModeData modeData) {
         UUID islandUniqueId = this.islandIds.get(bridgingPlayer.getUniqueId());
 
         Island island = islandUniqueId != null ? this.islandsStored.get(islandUniqueId) : null;
-        if (island != null) return CompletableFuture.completedFuture(island);
+        if (island != null) {
+            return CompletableFuture.completedFuture(island);
+        }
 
-        LocalSchematic localSchematic = this.getBridgingSchematic(bridgingPlayer.getSchematicName());
-        if (localSchematic == null) return CompletableFuture.failedFuture(new NullPointerException("Cannot find schematic " + bridgingPlayer.getSchematicName()));
+        LocalSchematic localSchematic = this.getBridgingSchematic(bridgingPlayer.getCompleteSchematicName());
+        if (localSchematic == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("Cannot find schematic " + modeData.getSchematicName() + " for mode " + modeData.getName()));
+        }
 
         return CompletableFuture.supplyAsync(() -> {
             AtomicInteger offset = new AtomicInteger(0);
@@ -86,7 +91,10 @@ public final class IslandManager {
                 throw new UnsupportedOperationException("Cannot find offset", e);
             }
 
-            Island finalIsland = this.wrapIsland(offset.get(), UUID.randomUUID(), bridgingPlayer, localSchematic);
+            Island finalIsland = this.wrapIsland(
+                    offset.get(),
+                    UUID.randomUUID(), modeData
+            );
 
             try {
                 finalIsland.paste(localSchematic);
@@ -104,20 +112,19 @@ public final class IslandManager {
     private @NonNull Island wrapIsland(
             int offset,
             @NonNull UUID uniqueId,
-            @NonNull BridgingPlayer bridgingPlayer,
-            @NonNull LocalSchematic localSchematic
+            @NonNull ModeData modeData
     ) {
-        if (localSchematic.getMode().equals(BreezilyIsland.ORIGINAL_NAME)) {
+        if (modeData.getName().equals(BreezilyIsland.ORIGINAL_NAME)) {
             return new BreezilyIsland(
                     offset,
                     uniqueId,
-                    BreezilyIslandDirection.NORMAL,
-                    BreezilyIslandHeight.NORMAL,
-                    BreezilyIslandHits.SOMETHING
+                    BreezilyIslandDirection.valueOf(modeData.getString("direction")),
+                    BreezilyIslandHeight.valueOf(modeData.getString("height")),
+                    BreezilyIslandHits.valueOf(modeData.getString("hits"))
             );
         }
 
-        throw new NullPointerException("Cannot wrap island for schematic " + localSchematic.getOriginalName());
+        throw new NullPointerException("Cannot wrap island for schematic " + modeData.getName());
     }
 
     @SuppressWarnings("unchecked")

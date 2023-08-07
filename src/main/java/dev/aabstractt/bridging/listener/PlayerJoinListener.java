@@ -21,7 +21,7 @@ public final class PlayerJoinListener implements Listener {
         // TODO: Find an available island for the player to join.
         // TODO: Freeze the player until we find an island for them to join.
 
-        IslandManager.getInstance().findOne(bridgingPlayer).whenComplete((island, throwable) -> {
+        IslandManager.getInstance().findOne(bridgingPlayer, bridgingPlayer.getModeData(bridgingPlayer.getMode())).whenComplete((island, throwable) -> {
             if (throwable != null) return;
 
             island.membersForEach(temporarilyBridgingPlayer -> temporarilyBridgingPlayer.teleport(island.getCenter()));
