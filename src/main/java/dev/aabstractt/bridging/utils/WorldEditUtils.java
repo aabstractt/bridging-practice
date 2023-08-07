@@ -10,16 +10,21 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 public final class WorldEditUtils {
 
-    public static void primeWorldEditApi() {
+    private final @NonNull Map<String, >
 
+    private static @Nullable BukkitWorld bukkitWorld = null;
+
+    public static void loadSchematic(@NonNull String schematicName) {
+        if (bukkitWorld == null) {
+            bukkitWorld = BukkitAdapter.adapt(Bukkit.getWorlds().get(0));
+        }
     }
 
     public static void paste(@NonNull String schematicName, @NonNull Location location, boolean pasteWithAir) {
-        primeWorldEditApi();
-
 
     }
 
