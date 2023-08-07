@@ -2,6 +2,7 @@ package dev.aabstractt.bridging.island;
 
 import com.google.common.collect.Maps;
 import dev.aabstractt.bridging.island.chunk.IslandChunkRestoration;
+import dev.aabstractt.bridging.island.listener.BridgingListener;
 import dev.aabstractt.bridging.island.schematic.LocalSchematic;
 import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.player.BridgingPlayer;
@@ -14,6 +15,7 @@ import net.minecraft.server.v1_8_R3.ChunkSection;
 import org.bukkit.Location;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -37,6 +39,7 @@ public abstract class Island {
 
     protected @NonNull Set<@NonNull UUID> members = new ConcurrentSet<>();
 
+    protected final @NonNull Set<@NonNull BridgingListener> listeners = new HashSet<>();
     protected final @NonNull Map<String, ChunkSection[]> chunks = Maps.newConcurrentMap();
 
     public abstract @NonNull String getMode();
@@ -78,5 +81,9 @@ public abstract class Island {
 
             consumer.accept(bridgingPlayer);
         }
+    }
+
+    public boolean isInsideCuboid(@NonNull Location bukkitLocation) {
+        return this.cuboid != null && this.cuboid.contains(bukkitLocation);
     }
 }

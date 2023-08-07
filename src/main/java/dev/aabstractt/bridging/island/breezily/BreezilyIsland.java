@@ -1,6 +1,7 @@
 package dev.aabstractt.bridging.island.breezily;
 
 import dev.aabstractt.bridging.island.Island;
+import dev.aabstractt.bridging.island.breezily.listener.BreezilyBlockPlace;
 import lombok.*;
 
 import java.util.UUID;
@@ -26,6 +27,10 @@ public final class BreezilyIsland extends Island {
         this.breezilyIslandDirection = breezilyIslandDirection;
         this.breezilyIslandHeight = breezilyIslandHeight;
         this.breezilyIslandHits = breezilyIslandHits;
+
+        this.listeners.add(
+                new BreezilyBlockPlace()
+        );
     }
 
     @Override
