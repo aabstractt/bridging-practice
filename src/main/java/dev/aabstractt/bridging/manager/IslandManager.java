@@ -128,7 +128,7 @@ public final class IslandManager {
         });
     }
 
-    public void loadIsland(@NonNull BridgingPlayer bridgingPlayer) {
+    public void createIsland(@NonNull BridgingPlayer bridgingPlayer) {
         Player bukkitPlayer = bridgingPlayer.toBukkitPlayer();
         if (bukkitPlayer == null) {
             return;
@@ -186,7 +186,7 @@ public final class IslandManager {
                 return;
             }
 
-            this.loadIsland(temporarilyBridgingPlayer);
+            this.createIsland(temporarilyBridgingPlayer);
         });
 
         island.getMembers().clear();

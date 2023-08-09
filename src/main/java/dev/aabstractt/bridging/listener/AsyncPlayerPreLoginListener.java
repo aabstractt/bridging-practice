@@ -18,6 +18,6 @@ public final class AsyncPlayerPreLoginListener implements Listener {
         BridgingPlayer bridgingPlayer = new BridgingPlayer(ev.getUniqueId(), ev.getName());
         BridgingPlayer.store(bridgingPlayer);
 
-        IslandManager.getInstance().loadIsland(bridgingPlayer);
+        IslandManager.getInstance().createIsland(bridgingPlayer);
     }
 }
