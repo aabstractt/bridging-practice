@@ -12,7 +12,11 @@ public final class ModeData {
     private final @NonNull String name;
     private final @NonNull String schematicName;
 
-    private final Map<String, Object> data;
+    private final @NonNull Map<String, Object> data;
+
+    public boolean isEmpty() {
+        return this.data.isEmpty();
+    }
 
     public @NonNull ModeData putString(@NonNull String key, @NonNull String value) {
         this.data.put(key, value);

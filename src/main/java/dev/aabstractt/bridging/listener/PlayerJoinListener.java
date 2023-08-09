@@ -21,7 +21,11 @@ public final class PlayerJoinListener implements Listener {
         if (!bukkitPlayer.isOnline()) return;
 
         BridgingPlayer bridgingPlayer = BridgingPlayer.byPlayer(bukkitPlayer);
-        if (bridgingPlayer == null) return;
+        if (bridgingPlayer == null) {
+            bukkitPlayer.kickPlayer("An error occurred while loading your data. Please rejoin.");
+
+            return;
+        }
 
         bridgingPlayer.setJoined(true);
 

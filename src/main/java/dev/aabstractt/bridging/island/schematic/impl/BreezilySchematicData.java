@@ -3,7 +3,10 @@ package dev.aabstractt.bridging.island.schematic.impl;
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.island.breezily.BreezilyIsland;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
+import dev.aabstractt.bridging.player.BridgingPlayer;
 import lombok.NonNull;
+
+import java.util.UUID;
 
 public final class BreezilySchematicData extends SchematicData {
 
@@ -17,7 +20,17 @@ public final class BreezilySchematicData extends SchematicData {
             throw new IllegalArgumentException("Island must be a BreezilyIsland");
         }
 
-        int distance = island.getDistance();
+        UUID ownership = island.getOwnership();
+        if (ownership == null) {
+            throw new IllegalArgumentException("Island must have an ownership");
+        }
+
+        BridgingPlayer bridgingPlayer = BridgingPlayer.byId(ownership);
+        if (bridgingPlayer == null) {
+            throw new IllegalArgumentException("Island must have a valid ownership");
+        }
+
+        int distance = bridgingPlayer.getModeData(bridgingPlayer.getMode()).getInt("distance");
         if (distance == 0) {
             throw new IllegalArgumentException("Island must have a distance");
         }

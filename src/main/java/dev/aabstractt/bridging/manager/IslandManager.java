@@ -114,6 +114,14 @@ public final class IslandManager {
 
             try {
                 finalIsland.paste(schematicData);
+
+                AbstractPlugin.getInstance().getLogger().info(String.format(
+                        "[Standalone Island] - %s placed at %s, %s. %s total islands",
+                        finalIsland.getId(),
+                        finalIsland.getOffset(),
+                        finalIsland.getOffset(),
+                        this.islandIds.size()
+                ));
             } catch (Exception e) {
                 throw new UnsupportedOperationException("Cannot paste island " + finalIsland.getId(), e);
             }
@@ -123,6 +131,10 @@ public final class IslandManager {
 
             finalIsland.setOwnership(bridgingPlayer.getUniqueId());
             finalIsland.getMembers().add(bridgingPlayer.getUniqueId());
+
+            if (modeData.isEmpty()) {
+                finalIsland.firstJoin(modeData);
+            }
 
             return finalIsland;
         });
@@ -181,12 +193,12 @@ public final class IslandManager {
 
         PluginChunkRestoration.getInstance().reset(island);
 
-        island.membersForEach(temporarilyBridgingPlayer -> {
-            if (Objects.equals(temporarilyBridgingPlayer.getUniqueId(), ownership)) {
+        island.membersForEach(bridgingPlayer -> {
+            if (Objects.equals(bridgingPlayer.getUniqueId(), ownership)) {
                 return;
             }
 
-            this.createIsland(temporarilyBridgingPlayer);
+            this.createIsland(bridgingPlayer);
         });
 
         island.getMembers().clear();

@@ -5,6 +5,7 @@ import dev.aabstractt.bridging.island.chunk.PluginChunkRestoration;
 import dev.aabstractt.bridging.island.listener.BridgingListener;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.BridgingPlayer;
+import dev.aabstractt.bridging.player.ModeData;
 import dev.aabstractt.bridging.utils.cuboid.Cuboid;
 import io.netty.util.internal.ConcurrentSet;
 import lombok.Data;
@@ -42,6 +43,8 @@ public abstract class Island {
     protected final @NonNull Map<String, ChunkSection[]> chunks = Maps.newConcurrentMap();
 
     public abstract @NonNull String getMode();
+
+    public abstract void firstJoin(@NonNull ModeData modeData);
 
     public void paste(@NonNull SchematicData schematicData) throws IllegalAccessException {
         if (this.schematicName == null) {

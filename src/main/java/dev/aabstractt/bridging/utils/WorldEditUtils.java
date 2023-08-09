@@ -28,7 +28,6 @@ public final class WorldEditUtils {
 
     private static final @NonNull Map<String, Schematic> schematics = new HashMap<>();
 
-
     public static void initializeSchematic(@NonNull String schematicName) {
         World bukkitWorld = Bukkit.getWorld("bridges");
         if (bukkitWorld == null) {

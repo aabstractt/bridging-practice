@@ -2,6 +2,8 @@ package dev.aabstractt.bridging.island.breezily;
 
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.island.breezily.listener.BreezilyBlockPlace;
+import dev.aabstractt.bridging.player.BridgingPlayer;
+import dev.aabstractt.bridging.player.ModeData;
 import lombok.*;
 
 import java.util.UUID;
@@ -36,5 +38,15 @@ public final class BreezilyIsland extends Island {
     @Override
     public @NonNull String getMode() {
         return ORIGINAL_NAME;
+    }
+
+    @Override
+    public void firstJoin(@NonNull ModeData modeData) {
+        modeData
+                .putInt("distance", 3)
+                .putString("height", BreezilyIslandHeight.NORMAL.name())
+                .putString("direction", BreezilyIslandDirection.NORMAL.name())
+                .putString("hits", BreezilyIslandHits.SOMETHING.name())
+                .putString("schematic", "breezily");
     }
 }
