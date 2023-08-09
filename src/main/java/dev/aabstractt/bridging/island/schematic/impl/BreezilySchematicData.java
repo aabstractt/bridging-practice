@@ -2,12 +2,12 @@ package dev.aabstractt.bridging.island.schematic.impl;
 
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.island.breezily.BreezilyIsland;
-import dev.aabstractt.bridging.island.schematic.ModeSchematic;
+import dev.aabstractt.bridging.island.schematic.SchematicData;
 import lombok.NonNull;
 
-public final class BreezilySchematic extends ModeSchematic {
+public final class BreezilySchematicData extends SchematicData {
 
-    public BreezilySchematic(@NonNull String mode, @NonNull String originalName, @NonNull String firstSchematicName, @NonNull String secondSchematicName) {
+    public BreezilySchematicData(@NonNull String mode, @NonNull String originalName, @NonNull String firstSchematicName, @NonNull String secondSchematicName) {
         super(mode, originalName, firstSchematicName, secondSchematicName);
     }
 

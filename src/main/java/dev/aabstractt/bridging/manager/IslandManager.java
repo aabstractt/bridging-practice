@@ -8,7 +8,7 @@ import dev.aabstractt.bridging.island.breezily.BreezilyIslandDirection;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHeight;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHits;
 import dev.aabstractt.bridging.island.chunk.IslandChunkRestoration;
-import dev.aabstractt.bridging.island.schematic.ModeSchematic;
+import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.player.ModeData;
 import dev.aabstractt.bridging.utils.WorldEditUtils;
@@ -24,7 +24,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Getter
 public final class IslandManager {
 
     @Getter private final static @NonNull IslandManager instance = new IslandManager();
@@ -42,7 +41,7 @@ public final class IslandManager {
         return offset;
     };
 
-    private final @NonNull Map<String, ModeSchematic> bridgingSchematics = new HashMap<>();
+    private final @NonNull Map<String, SchematicData> schematicsData = new HashMap<>();
 
     private final @NonNull List<@NonNull Integer> availableOffsets = new ArrayList<>();
     private final @NonNull List<Integer> unavailableOffsets = new ArrayList<>();
@@ -62,15 +61,15 @@ public final class IslandManager {
             if (schematics.isEmpty()) continue;
 
             for (String schematicName : schematics) {
-                ModeSchematic modeSchematic = WorldEditUtils.wrapModeSchematic(type, schematicName);
-                if (modeSchematic == null) {
+                SchematicData schematicData = WorldEditUtils.wrapModeSchematic(type, schematicName);
+                if (schematicData == null) {
                     throw new NullPointerException("Cannot load  " + schematicName + " schematic for type " + type);
                 }
 
-                WorldEditUtils.initializeSchematic(modeSchematic.getFirstSchematicName());
-                WorldEditUtils.initializeSchematic(modeSchematic.getSecondSchematicName());
+                WorldEditUtils.initializeSchematic(schematicData.getFirstSchematicName());
+                WorldEditUtils.initializeSchematic(schematicData.getSecondSchematicName());
 
-                this.bridgingSchematics.put(modeSchematic.getCompleteName(), modeSchematic);
+                this.schematicsData.put(schematicData.getCompleteName(), schematicData);
             }
         }
     }
@@ -94,8 +93,8 @@ public final class IslandManager {
             return CompletableFuture.completedFuture(island);
         }
 
-        ModeSchematic modeSchematic = this.getBridgingSchematic(bridgingPlayer.getCompleteSchematicName());
-        if (modeSchematic == null) {
+        SchematicData schematicData = this.getSchematicData(bridgingPlayer.getCompleteSchematicName());
+        if (schematicData == null) {
             return CompletableFuture.failedFuture(new NullPointerException("Cannot find schematic " + modeData.getSchematicName() + " for mode " + modeData.getName()));
         }
 
@@ -114,7 +113,7 @@ public final class IslandManager {
             );
 
             try {
-                finalIsland.paste(modeSchematic);
+                finalIsland.paste(schematicData);
             } catch (Exception e) {
                 throw new UnsupportedOperationException("Cannot paste island " + finalIsland.getId(), e);
             }
@@ -126,6 +125,36 @@ public final class IslandManager {
             finalIsland.getMembers().add(bridgingPlayer.getUniqueId());
 
             return finalIsland;
+        });
+    }
+
+    public void loadIsland(@NonNull BridgingPlayer bridgingPlayer) {
+        Player bukkitPlayer = bridgingPlayer.toBukkitPlayer();
+        if (bukkitPlayer == null) {
+            return;
+        }
+
+        bukkitPlayer.teleport(AbstractPlugin.getInstance().getSpawnLocation());
+
+        this.findOne(
+                bridgingPlayer,
+                bridgingPlayer.getModeData(bridgingPlayer.getMode())
+        ).whenComplete((newIsland, throwable) -> {
+            if (!bukkitPlayer.isOnline()) return;
+
+            if (!bridgingPlayer.isJoined()) {
+                return;
+            }
+
+            if (throwable != null) {
+                bukkitPlayer.kickPlayer("Cannot find island");
+
+                Bukkit.getLogger().severe("Cannot find island for " + bridgingPlayer.getName());
+
+                return;
+            }
+
+            bukkitPlayer.teleport(newIsland.getCenter());
         });
     }
 
@@ -153,36 +182,11 @@ public final class IslandManager {
         IslandChunkRestoration.getInstance().reset(island);
 
         island.membersForEach(temporarilyBridgingPlayer -> {
-            Player bukkitPlayer = temporarilyBridgingPlayer.toBukkitPlayer();
-            if (bukkitPlayer == null) {
-                return;
-            }
-
-            bukkitPlayer.teleport(AbstractPlugin.getInstance().getSpawnLocation());
-
             if (Objects.equals(temporarilyBridgingPlayer.getUniqueId(), ownership)) {
                 return;
             }
 
-            this.findOne(
-                    temporarilyBridgingPlayer,
-                    temporarilyBridgingPlayer.getModeData(temporarilyBridgingPlayer.getMode())
-            ).whenComplete((newIsland, throwable) -> {
-                if (!bukkitPlayer.isOnline()) return;
-
-                if (throwable != null) {
-                    bukkitPlayer.kickPlayer("Cannot find island");
-
-                    Bukkit.getLogger().severe("Cannot find island for " + temporarilyBridgingPlayer.getName());
-
-                    return;
-                }
-
-                newIsland.setOwnership(temporarilyBridgingPlayer.getUniqueId());
-                newIsland.getMembers().add(temporarilyBridgingPlayer.getUniqueId());
-
-                bukkitPlayer.teleport(newIsland.getCenter());
-            });
+            this.loadIsland(temporarilyBridgingPlayer);
         });
 
         island.getMembers().clear();
@@ -203,11 +207,11 @@ public final class IslandManager {
             );
         }
 
-        throw new NullPointerException("Cannot wrap island for schematic " + modeData.getName());
+        throw new UnsupportedOperationException("Cannot wrap island for " + modeData.getName());
     }
 
     @SuppressWarnings("unchecked")
-    public @Nullable <T extends ModeSchematic> T getBridgingSchematic(@NonNull String schematicName) {
-        return (T) this.bridgingSchematics.get(schematicName);
+    public @Nullable <T extends SchematicData> T getSchematicData(@NonNull String schematicName) {
+        return (T) this.schematicsData.get(schematicName);
     }
 }

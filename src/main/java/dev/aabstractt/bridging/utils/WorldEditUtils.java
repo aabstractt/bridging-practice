@@ -5,8 +5,8 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import dev.aabstractt.bridging.island.schematic.ModeSchematic;
-import dev.aabstractt.bridging.island.schematic.impl.BreezilySchematic;
+import dev.aabstractt.bridging.island.schematic.SchematicData;
+import dev.aabstractt.bridging.island.schematic.impl.BreezilySchematicData;
 import lombok.NonNull;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
 import org.bukkit.Bukkit;
@@ -85,12 +85,12 @@ public final class WorldEditUtils {
         }
     }
 
-    public static @Nullable ModeSchematic wrapModeSchematic(@NonNull String mode, @NonNull String originalName) {
+    public static @Nullable SchematicData wrapModeSchematic(@NonNull String mode, @NonNull String originalName) {
         String firstSchematicName = mode + "-" + originalName + "-start";
         String secondSchematicName = mode + "-" + originalName + "-end";
 
         return switch (mode) {
-            case "breezily" -> new BreezilySchematic(mode, originalName, firstSchematicName, secondSchematicName);
+            case "breezily" -> new BreezilySchematicData(mode, originalName, firstSchematicName, secondSchematicName);
             case "godbridge" -> null;
             default -> null;
         };

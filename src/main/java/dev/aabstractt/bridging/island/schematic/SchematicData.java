@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 
 @RequiredArgsConstructor @Data
-public abstract class ModeSchematic {
+public abstract class SchematicData {
 
     protected final @NonNull String mode;
 

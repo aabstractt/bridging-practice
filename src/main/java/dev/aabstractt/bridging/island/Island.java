@@ -3,7 +3,7 @@ package dev.aabstractt.bridging.island;
 import com.google.common.collect.Maps;
 import dev.aabstractt.bridging.island.chunk.IslandChunkRestoration;
 import dev.aabstractt.bridging.island.listener.BridgingListener;
-import dev.aabstractt.bridging.island.schematic.ModeSchematic;
+import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.utils.cuboid.Cuboid;
 import io.netty.util.internal.ConcurrentSet;
@@ -43,14 +43,14 @@ public abstract class Island {
 
     public abstract @NonNull String getMode();
 
-    public void paste(@NonNull ModeSchematic modeSchematic) throws IllegalAccessException {
+    public void paste(@NonNull SchematicData schematicData) throws IllegalAccessException {
         if (this.schematicName == null) {
             throw new IllegalArgumentException("Island must have a schematic name");
         }
 
         IslandChunkRestoration.getInstance().copy(this);
 
-        modeSchematic.paste(this);
+        schematicData.paste(this);
     }
 
     public void registerChunkSections(@NonNull String chunkHash, @NonNull ChunkSection[] chunkSections) {

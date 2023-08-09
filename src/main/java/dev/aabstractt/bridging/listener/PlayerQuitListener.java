@@ -15,6 +15,9 @@ public final class PlayerQuitListener implements Listener {
     @EventHandler
     public void onPlayerQuitEvent(@NonNull PlayerQuitEvent ev) {
         Player bukkitPlayer = ev.getPlayer();
+        if (!bukkitPlayer.isOnline()) {
+            return;
+        }
 
         Island island = IslandManager.getInstance().byPlayer(bukkitPlayer);
         if (island == null) {
