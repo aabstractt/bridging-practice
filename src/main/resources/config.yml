@@ -1,0 +1,11 @@
+bungee-mode: true
+
+default-schematic: "default"
+default-mode: "breezily"
+
+types:
+  Breezily:
+    - default
+    - aquatic
+    - construction
+    - oeste

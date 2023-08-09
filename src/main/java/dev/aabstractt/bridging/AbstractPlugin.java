@@ -27,11 +27,15 @@ public final class AbstractPlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        this.saveDefaultConfig();
+
         IslandManager.getInstance().init();
 
         this.getServer().getPluginCommand("islandadmin").setExecutor(new BaseCommandExecutor("/<label> help")
                 .addArgument(new ResetArgument("reset", "/<label> reset <player>", 2, "island.admin.reset"))
         );
+
+        com.google.common.base.Throwables.
 
         this.getServer().getPluginManager().registerEvents(new AsyncPlayerPreLoginListener(), this);
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
@@ -42,5 +46,17 @@ public final class AbstractPlugin extends JavaPlugin {
 
     public @NonNull Location getSpawnLocation() {
         return Bukkit.getWorlds().get(0).getSpawnLocation();
+    }
+
+    public static @NonNull String getDefaultSchematicName() {
+        return getInstance().getConfig().getString("default-schematic", "default");
+    }
+
+    public static @NonNull String getDefaultMode() {
+        return getInstance().getConfig().getString("default-mode", "solo");
+    }
+
+    public static boolean isSingleServer() {
+        return !getInstance().getConfig().getBoolean("bungee-mode", true);
     }
 }

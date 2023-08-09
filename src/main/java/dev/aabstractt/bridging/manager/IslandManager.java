@@ -60,7 +60,7 @@ public final class IslandManager {
             if (schematics.isEmpty()) continue;
 
             for (String schematicName : schematics) {
-                SchematicData schematicData = WorldEditUtils.wrapModeSchematic(type, schematicName);
+                SchematicData schematicData = WorldEditUtils.wrapModeSchematic(type.toLowerCase(), schematicName);
                 if (schematicData == null) {
                     throw new NullPointerException("Cannot load  " + schematicName + " schematic for type " + type);
                 }

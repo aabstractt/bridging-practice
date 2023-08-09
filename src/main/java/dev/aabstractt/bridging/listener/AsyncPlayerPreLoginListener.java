@@ -1,5 +1,6 @@
 package dev.aabstractt.bridging.listener;
 
+import dev.aabstractt.bridging.AbstractPlugin;
 import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import lombok.NonNull;
@@ -17,6 +18,10 @@ public final class AsyncPlayerPreLoginListener implements Listener {
 
         BridgingPlayer bridgingPlayer = new BridgingPlayer(ev.getUniqueId(), ev.getName());
         BridgingPlayer.store(bridgingPlayer);
+
+        if (AbstractPlugin.isSingleServer()) {
+            return;
+        }
 
         IslandManager.getInstance().createIsland(bridgingPlayer);
     }

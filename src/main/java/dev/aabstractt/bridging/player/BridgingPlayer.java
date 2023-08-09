@@ -1,7 +1,7 @@
 package dev.aabstractt.bridging.player;
 
 import com.google.common.collect.Maps;
-import dev.aabstractt.bridging.island.breezily.BreezilyIsland;
+import dev.aabstractt.bridging.AbstractPlugin;
 import io.netty.util.internal.ConcurrentSet;
 import lombok.Data;
 import lombok.NonNull;
@@ -24,7 +24,7 @@ public final class BridgingPlayer {
     private final @NonNull UUID uniqueId;
     private final @NonNull String name;
 
-    private @NonNull String mode = BreezilyIsland.ORIGINAL_NAME;
+    private @NonNull String mode = AbstractPlugin.getDefaultMode();
 
     private final @NonNull Set<ModeData> modesData = new ConcurrentSet<>();
 
@@ -52,7 +52,7 @@ public final class BridgingPlayer {
 
         if (modeData != null) return modeData;
 
-        modeData = new ModeData(mode, "default", new ConcurrentHashMap<>());
+        modeData = new ModeData(mode, AbstractPlugin.getDefaultSchematicName(), new ConcurrentHashMap<>());
         this.modesData.add(modeData);
 
         return modeData;

@@ -1,5 +1,6 @@
 package dev.aabstractt.bridging.listener;
 
+import dev.aabstractt.bridging.AbstractPlugin;
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.player.BridgingPlayer;
@@ -28,6 +29,10 @@ public final class PlayerJoinListener implements Listener {
         }
 
         bridgingPlayer.setJoined(true);
+
+        if (AbstractPlugin.isSingleServer()) {
+            return;
+        }
 
         Island island = IslandManager.getInstance().byPlayer(bukkitPlayer);
         if (island == null) {
