@@ -1,13 +1,13 @@
 package dev.aabstractt.bridging;
 
-import dev.aabstractt.bridging.listener.AsyncPlayerPreLoginListener;
-import dev.aabstractt.bridging.listener.PlayerJoinListener;
+import dev.aabstractt.bridging.command.BaseCommandExecutor;
+import dev.aabstractt.bridging.command.admin.ResetArgument;
+import dev.aabstractt.bridging.listener.*;
 import dev.aabstractt.bridging.manager.IslandManager;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitWorker;
 
 import javax.annotation.Nullable;
 
@@ -29,8 +29,15 @@ public final class AbstractPlugin extends JavaPlugin {
 
         IslandManager.getInstance().init();
 
+        this.getServer().getPluginCommand("islandadmin").setExecutor(new BaseCommandExecutor("/<label> help")
+                .addArgument(new ResetArgument("reset", "/<label> reset <player>", 2, "island.admin.reset"))
+        );
+
         this.getServer().getPluginManager().registerEvents(new AsyncPlayerPreLoginListener(), this);
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        this.getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
+        this.getServer().getPluginManager().registerEvents(new BlockBreakListener(), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
     }
 
     public @NonNull Location getSpawnLocation() {

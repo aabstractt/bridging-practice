@@ -2,18 +2,19 @@ package dev.aabstractt.bridging.listener;
 
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.island.listener.BlockBreak;
+import dev.aabstractt.bridging.island.listener.BlockPlace;
 import dev.aabstractt.bridging.island.listener.BridgingListener;
 import dev.aabstractt.bridging.manager.IslandManager;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 
-public final class BlockBreakListener implements Listener {
+public final class BlockPlaceListener implements Listener {
 
     @EventHandler
-    public void onBlockBreakEvent(@NonNull BlockBreakEvent ev) {
+    public void onBlockPlaceEvent(@NonNull BlockPlaceEvent ev) {
         Player bukkitPlayer = ev.getPlayer();
         if (!bukkitPlayer.isOnline()) {
             return;
@@ -37,9 +38,9 @@ public final class BlockBreakListener implements Listener {
         }
 
         for (BridgingListener bridgingListener : island.getListeners()) {
-            if (!(bridgingListener instanceof BlockBreak)) continue;
+            if (!(bridgingListener instanceof BlockPlace)) continue;
 
-            ((BlockBreak) bridgingListener).onBlockBreakEvent(ev);
+            ((BlockPlace) bridgingListener).onBlockPlaceEvent(ev);
         }
     }
 }
