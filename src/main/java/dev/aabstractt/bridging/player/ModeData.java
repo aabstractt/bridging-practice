@@ -10,7 +10,7 @@ import java.util.Map;
 public final class ModeData {
 
     private final @NonNull String name;
-    private final @NonNull String schematicName;
+    private @NonNull String schematicName;
 
     private final @NonNull Map<String, Object> data;
 

@@ -2,9 +2,11 @@ package dev.aabstractt.bridging.island.breezily;
 
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.island.breezily.listener.BreezilyBlockPlace;
-import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.player.ModeData;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -18,13 +20,12 @@ public final class BreezilyIsland extends Island {
     private @NonNull BreezilyIslandHits breezilyIslandHits;
 
     public BreezilyIsland(
-            int offset,
             @NonNull UUID uniqueId,
             @NonNull BreezilyIslandDirection breezilyIslandDirection,
             @NonNull BreezilyIslandHeight breezilyIslandHeight,
             @NonNull BreezilyIslandHits breezilyIslandHits
     ) {
-        super(offset, uniqueId);
+        super(uniqueId);
 
         this.breezilyIslandDirection = breezilyIslandDirection;
         this.breezilyIslandHeight = breezilyIslandHeight;
@@ -42,11 +43,9 @@ public final class BreezilyIsland extends Island {
 
     @Override
     public void firstJoin(@NonNull ModeData modeData) {
-        modeData
-                .putInt("distance", 3)
+        modeData.putInt("distance", 3)
                 .putString("height", BreezilyIslandHeight.NORMAL.name())
                 .putString("direction", BreezilyIslandDirection.NORMAL.name())
-                .putString("hits", BreezilyIslandHits.SOMETHING.name())
-                .putString("schematic", "breezily");
+                .putString("hits", BreezilyIslandHits.SOMETHING.name());
     }
 }

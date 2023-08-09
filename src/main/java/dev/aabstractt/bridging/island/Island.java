@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.server.v1_8_R3.ChunkSection;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -24,7 +25,6 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor @Data
 public abstract class Island {
 
-    protected final int offset;
     protected final @NonNull UUID id;
 
     protected @Nullable Location center = null;
@@ -35,7 +35,7 @@ public abstract class Island {
 
     protected boolean updating = false;
 
-    protected int distance = 0;
+    protected int offset = 0;
 
     protected @NonNull Set<@NonNull UUID> members = new ConcurrentSet<>();
 
@@ -70,6 +70,15 @@ public abstract class Island {
         }
 
         return this.center.clone();
+    }
+
+    public void broadcast(@NonNull String message) {
+        this.membersForEach(bridgingPlayer -> {
+            Player bukkitPlayer = bridgingPlayer.toBukkitPlayer();
+            if (bukkitPlayer == null || !bukkitPlayer.isOnline()) return;
+
+            bukkitPlayer.sendMessage(message);
+        });
     }
 
     public void membersForEach(@NonNull Consumer<@NonNull BridgingPlayer> consumer) {

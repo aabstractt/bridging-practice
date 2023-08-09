@@ -22,7 +22,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class IslandManager {
 
@@ -99,20 +98,13 @@ public final class IslandManager {
         }
 
         return CompletableFuture.supplyAsync(() -> {
-            AtomicInteger offset = new AtomicInteger(0);
-
-            try {
-                offset.set(this.calculateAvailableOffset.call());
-            } catch (Exception e) {
-                throw new UnsupportedOperationException("Cannot find offset", e);
-            }
-
             Island finalIsland = this.wrapIsland(
-                    offset.get(),
-                    UUID.randomUUID(), modeData
+                    UUID.randomUUID(),
+                    modeData
             );
 
             try {
+                finalIsland.setOffset(this.calculateAvailableOffset.call());
                 finalIsland.paste(schematicData);
 
                 AbstractPlugin.getInstance().getLogger().info(String.format(
@@ -123,11 +115,11 @@ public final class IslandManager {
                         this.islandIds.size()
                 ));
             } catch (Exception e) {
-                throw new UnsupportedOperationException("Cannot paste island " + finalIsland.getId(), e);
+                throw new UnsupportedOperationException("Cannot allocate a new island", e);
             }
 
             this.islandsStored.put(finalIsland.getId(), finalIsland);
-            this.unavailableOffsets.add(offset.get());
+            this.unavailableOffsets.add(finalIsland.getOffset());
 
             finalIsland.setOwnership(bridgingPlayer.getUniqueId());
             finalIsland.getMembers().add(bridgingPlayer.getUniqueId());
@@ -205,13 +197,11 @@ public final class IslandManager {
     }
 
     private @NonNull Island wrapIsland(
-            int offset,
             @NonNull UUID uniqueId,
             @NonNull ModeData modeData
     ) {
         if (modeData.getName().equals(BreezilyIsland.ORIGINAL_NAME)) {
             return new BreezilyIsland(
-                    offset,
                     uniqueId,
                     BreezilyIslandDirection.valueOf(modeData.getString("direction")),
                     BreezilyIslandHeight.valueOf(modeData.getString("height")),
