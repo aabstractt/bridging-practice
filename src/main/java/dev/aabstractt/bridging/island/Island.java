@@ -1,7 +1,7 @@
 package dev.aabstractt.bridging.island;
 
 import com.google.common.collect.Maps;
-import dev.aabstractt.bridging.island.chunk.IslandChunkRestoration;
+import dev.aabstractt.bridging.island.chunk.PluginChunkRestoration;
 import dev.aabstractt.bridging.island.listener.BridgingListener;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.BridgingPlayer;
@@ -48,7 +48,7 @@ public abstract class Island {
             throw new IllegalArgumentException("Island must have a schematic name");
         }
 
-        IslandChunkRestoration.getInstance().copy(this);
+        PluginChunkRestoration.getInstance().copy(this);
 
         schematicData.paste(this);
     }

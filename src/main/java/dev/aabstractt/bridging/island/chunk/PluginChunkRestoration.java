@@ -8,11 +8,11 @@ import net.minecraft.server.v1_8_R3.ChunkSection;
 import org.bukkit.Chunk;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 
-public final class IslandChunkRestoration {
+public final class PluginChunkRestoration {
 
-    @Getter private static final @NonNull IslandChunkRestoration instance = new IslandChunkRestoration();
+    @Getter private static final @NonNull PluginChunkRestoration instance = new PluginChunkRestoration();
 
-    private final @NonNull VanillaChunkReset vanillaChunkReset = new VanillaChunkReset();
+    private final @NonNull PluginChunkReset pluginChunkReset = new PluginChunkReset();
 
     public void copy(@NonNull Island island) throws IllegalAccessException {
         Cuboid cuboid = island.getCuboid();
@@ -26,8 +26,8 @@ public final class IslandChunkRestoration {
             chunk.load();
 
             island.registerChunkSections(
-                    VanillaChunkReset.chunkHash(chunk),
-                    this.vanillaChunkReset.cloneSections(((CraftChunk) chunk).getHandle().getSections())
+                    PluginChunkReset.chunkHash(chunk),
+                    this.pluginChunkReset.cloneSections(((CraftChunk) chunk).getHandle().getSections())
             );
         }
 
@@ -45,14 +45,14 @@ public final class IslandChunkRestoration {
         for (Chunk chunk : cuboid.getChunks()) {
             chunk.load();
 
-            ChunkSection[] chunkSections = island.getChunkSections(VanillaChunkReset.chunkHash(chunk));
+            ChunkSection[] chunkSections = island.getChunkSections(PluginChunkReset.chunkHash(chunk));
             if (chunkSections == null) {
                 continue;
             }
 
-            this.vanillaChunkReset.setSections(
+            this.pluginChunkReset.setSections(
                     ((CraftChunk) chunk).getHandle(),
-                    this.vanillaChunkReset.cloneSections(chunkSections)
+                    this.pluginChunkReset.cloneSections(chunkSections)
             );
 
             chunk.getWorld().refreshChunk(chunk.getX(), chunk.getZ()); // let the mf server know that you've updated the chunk.

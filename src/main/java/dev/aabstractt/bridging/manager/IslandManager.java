@@ -7,7 +7,7 @@ import dev.aabstractt.bridging.island.breezily.BreezilyIsland;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandDirection;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHeight;
 import dev.aabstractt.bridging.island.breezily.BreezilyIslandHits;
-import dev.aabstractt.bridging.island.chunk.IslandChunkRestoration;
+import dev.aabstractt.bridging.island.chunk.PluginChunkRestoration;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.player.ModeData;
@@ -179,7 +179,7 @@ public final class IslandManager {
         this.availableOffsets.add(island.getOffset());
         this.unavailableOffsets.remove(island.getOffset());
 
-        IslandChunkRestoration.getInstance().reset(island);
+        PluginChunkRestoration.getInstance().reset(island);
 
         island.membersForEach(temporarilyBridgingPlayer -> {
             if (Objects.equals(temporarilyBridgingPlayer.getUniqueId(), ownership)) {

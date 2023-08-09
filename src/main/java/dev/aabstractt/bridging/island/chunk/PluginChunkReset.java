@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-public final class VanillaChunkReset {
+public final class PluginChunkReset {
 
     public void setSections(@NonNull net.minecraft.server.v1_8_R3.Chunk nmsChunk, @NonNull ChunkSection[] sections) {
         setField("sections", nmsChunk, sections);
