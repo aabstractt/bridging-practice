@@ -62,7 +62,7 @@ public final class IslandManager {
             for (String schematicName : schematics) {
                 SchematicData schematicData = WorldEditUtils.wrapModeSchematic(type.toLowerCase(), schematicName);
                 if (schematicData == null) {
-                    throw new NullPointerException("Cannot load  " + schematicName + " schematic for type " + type);
+                    throw new UnsupportedOperationException("Unsupported mode: " + type);
                 }
 
                 WorldEditUtils.initializeSchematic(schematicData.getFirstSchematicName());
@@ -94,7 +94,7 @@ public final class IslandManager {
 
         SchematicData schematicData = this.getSchematicData(bridgingPlayer.getCompleteSchematicName());
         if (schematicData == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("Cannot find schematic " + modeData.getSchematicName() + " for mode " + modeData.getName()));
+            return AbstractPlugin.failedFuture(new NullPointerException("Cannot find schematic " + modeData.getSchematicName() + " for mode " + modeData.getName()));
         }
 
         return CompletableFuture.supplyAsync(() -> {

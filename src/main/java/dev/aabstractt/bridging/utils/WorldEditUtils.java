@@ -88,10 +88,8 @@ public final class WorldEditUtils {
         String firstSchematicName = mode + "-" + originalName + "-start";
         String secondSchematicName = mode + "-" + originalName + "-end";
 
-        return switch (mode) {
-            case "breezily" -> new BreezilySchematicData(mode, originalName, firstSchematicName, secondSchematicName);
-            case "godbridge" -> null;
-            default -> null;
-        };
+        if (mode.equals("breezily")) return new BreezilySchematicData(mode, originalName, firstSchematicName, secondSchematicName);
+
+        return null;
     }
 }

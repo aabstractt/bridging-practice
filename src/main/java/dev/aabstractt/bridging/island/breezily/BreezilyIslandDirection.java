@@ -13,18 +13,16 @@ public enum BreezilyIslandDirection {
     }
 
     public BreezilyIslandDirection next() {
-        return switch (this) {
-            case NORMAL -> SEMI_DIAGONAL;
-            case SEMI_DIAGONAL -> DIAGONAL;
-            default -> NORMAL;
-        };
+        if (this.equals(NORMAL)) return SEMI_DIAGONAL;
+        if (this.equals(SEMI_DIAGONAL)) return DIAGONAL;
+
+        return NORMAL;
     }
 
     public BreezilyIslandDirection before() {
-        return switch (this) {
-            case DIAGONAL -> SEMI_DIAGONAL;
-            case SEMI_DIAGONAL -> NORMAL;
-            default -> DIAGONAL;
-        };
+        if (this.equals(DIAGONAL)) return SEMI_DIAGONAL;
+        if (this.equals(SEMI_DIAGONAL)) return NORMAL;
+
+        return DIAGONAL;
     }
 }

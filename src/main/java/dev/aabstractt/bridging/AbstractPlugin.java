@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
+import java.util.concurrent.CompletableFuture;
 
 public final class AbstractPlugin extends JavaPlugin {
 
@@ -35,8 +36,6 @@ public final class AbstractPlugin extends JavaPlugin {
                 .addArgument(new ResetArgument("reset", "/<label> reset <player>", 2, "island.admin.reset"))
         );
 
-        com.google.common.base.Throwables.
-
         this.getServer().getPluginManager().registerEvents(new AsyncPlayerPreLoginListener(), this);
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         this.getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
@@ -58,5 +57,12 @@ public final class AbstractPlugin extends JavaPlugin {
 
     public static boolean isSingleServer() {
         return !getInstance().getConfig().getBoolean("bungee-mode", true);
+    }
+
+    public static @NonNull <T> CompletableFuture<T> failedFuture(@NonNull Throwable throwable) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        future.completeExceptionally(throwable);
+
+        return future;
     }
 }
