@@ -47,10 +47,10 @@ public final class PlayerJoinListener implements Listener {
             return;
         }
 
-        bukkitPlayer.teleport(island.getCenter());
+        bukkitPlayer.teleport(island.toBukkitLocation());
 
         WorldEditUtils.sendChunkPacket(
-                (CraftChunk) bukkitPlayer.getWorld().getChunkAt(island.getCenter()),
+                (CraftChunk) bukkitPlayer.getWorld().getChunkAt(island.toBukkitLocation()),
                 bukkitPlayer
         );
     }

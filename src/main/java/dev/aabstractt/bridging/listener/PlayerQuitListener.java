@@ -31,7 +31,7 @@ public final class PlayerQuitListener implements Listener {
         }
 
         try {
-            IslandManager.getInstance().closeIsland(island);
+            IslandManager.getInstance().unloadIsland(island);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

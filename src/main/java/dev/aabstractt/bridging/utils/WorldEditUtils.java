@@ -4,9 +4,11 @@ import com.boydti.fawe.object.schematic.Schematic;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.island.schematic.impl.BreezilySchematicData;
+import dev.aabstractt.bridging.utils.cuboid.Cuboid;
 import lombok.NonNull;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
 import org.bukkit.Bukkit;
@@ -24,18 +26,19 @@ import java.util.Map;
 public final class WorldEditUtils {
 
     private final static @NonNull File SCHEMATICS_FILE = new File(WorldEditPlugin.getPlugin(WorldEditPlugin.class).getDataFolder(),"schematics");
+    public static @Nullable World BUKKIT_WORLD = null;
     private static @Nullable BukkitWorld FAWE_WORLD = null;
 
     private static final @NonNull Map<String, Schematic> schematics = new HashMap<>();
 
     public static void initializeSchematic(@NonNull String schematicName) {
-        World bukkitWorld = Bukkit.getWorld("bridges");
-        if (bukkitWorld == null) {
+        BUKKIT_WORLD = Bukkit.getWorld("bridges");
+        if (BUKKIT_WORLD == null) {
             throw new NullPointerException("Bukkit world is null");
         }
 
         if (FAWE_WORLD == null) {
-            FAWE_WORLD = new BukkitWorld(bukkitWorld);
+            FAWE_WORLD = new BukkitWorld(BUKKIT_WORLD);
         }
 
         if (!SCHEMATICS_FILE.exists()) {
@@ -76,6 +79,24 @@ public final class WorldEditUtils {
         );
     }
 
+    public static @NonNull Clipboard getClipboard(@NonNull String schematicName) {
+        if (FAWE_WORLD == null) {
+            throw new NullPointerException("FAWE world is null");
+        }
+
+        Schematic schematic = schematics.get(schematicName);
+        if (schematic == null) {
+            throw new NullPointerException("Schematic is null");
+        }
+
+        Clipboard clipboard = schematic.getClipboard();
+        if (clipboard == null) {
+            throw new NullPointerException("Clipboard is null");
+        }
+
+        return clipboard;
+    }
+
     public static void sendChunkPacket(@NonNull CraftChunk chunk, @NonNull Player... bukkitPlayers) {
         PacketPlayOutMapChunk packetPlayOutMapChunk = new PacketPlayOutMapChunk(chunk.getHandle(), true, 20);
 
@@ -84,12 +105,26 @@ public final class WorldEditUtils {
         }
     }
 
-    public static @Nullable SchematicData wrapModeSchematic(@NonNull String mode, @NonNull String originalName) {
+    public static @Nullable SchematicData wrapSchematicData(@NonNull String mode, @NonNull String originalName) {
         String firstSchematicName = mode + "-" + originalName + "-start";
         String secondSchematicName = mode + "-" + originalName + "-end";
 
-        if (mode.equals("breezily")) return new BreezilySchematicData(mode, originalName, firstSchematicName, secondSchematicName);
+        if (mode.equals("breezily")) {
+            return new BreezilySchematicData(
+                    mode,
+                    originalName,
+                    firstSchematicName,
+                    secondSchematicName
+            );
+        }
 
         return null;
+    }
+
+    public static @NonNull Cuboid wrapCuboid(@NonNull Location center, @NonNull Vector origin, @NonNull Vector min, @NonNull Vector max) {
+        return new Cuboid(
+                center.clone().add(min.getBlockX() - origin.getBlockX(), 0, min.getBlockZ() - origin.getBlockZ()),
+                center.clone().add(max.getBlockX() - origin.getBlockX(), 200, max.getBlockZ() - origin.getBlockZ())
+        );
     }
 }

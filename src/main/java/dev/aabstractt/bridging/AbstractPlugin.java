@@ -58,11 +58,4 @@ public final class AbstractPlugin extends JavaPlugin {
     public static boolean isSingleServer() {
         return !getInstance().getConfig().getBoolean("bungee-mode", true);
     }
-
-    public static @NonNull <T> CompletableFuture<T> failedFuture(@NonNull Throwable throwable) {
-        CompletableFuture<T> future = new CompletableFuture<>();
-        future.completeExceptionally(throwable);
-
-        return future;
-    }
 }

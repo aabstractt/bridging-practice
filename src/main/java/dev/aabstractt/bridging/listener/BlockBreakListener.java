@@ -36,10 +36,11 @@ public final class BlockBreakListener implements Listener {
             return;
         }
 
-        for (BridgingListener bridgingListener : island.getListeners()) {
-            if (!(bridgingListener instanceof BlockBreak)) continue;
-
-            ((BlockBreak) bridgingListener).onBlockBreakEvent(ev);
+        BlockBreak blockBreakListener = island.getBlockBreakListener();
+        if (blockBreakListener == null) {
+            return;
         }
+
+        blockBreakListener.onBlockBreakEvent(ev);
     }
 }

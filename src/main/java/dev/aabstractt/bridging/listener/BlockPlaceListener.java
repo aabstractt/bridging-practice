@@ -1,9 +1,7 @@
 package dev.aabstractt.bridging.listener;
 
 import dev.aabstractt.bridging.island.Island;
-import dev.aabstractt.bridging.island.listener.BlockBreak;
 import dev.aabstractt.bridging.island.listener.BlockPlace;
-import dev.aabstractt.bridging.island.listener.BridgingListener;
 import dev.aabstractt.bridging.manager.IslandManager;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
@@ -37,10 +35,11 @@ public final class BlockPlaceListener implements Listener {
             return;
         }
 
-        for (BridgingListener bridgingListener : island.getListeners()) {
-            if (!(bridgingListener instanceof BlockPlace)) continue;
-
-            ((BlockPlace) bridgingListener).onBlockPlaceEvent(ev);
+        BlockPlace blockPlaceListener = island.getBlockPlaceListener();
+        if (blockPlaceListener == null) {
+            return;
         }
+
+        blockPlaceListener.onBlockPlaceEvent(ev);
     }
 }

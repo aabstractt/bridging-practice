@@ -36,8 +36,8 @@ public final class BreezilySchematicData extends SchematicData {
         }
 
         this.pasteBoth(
-                island.getCenter(),
-                island.getCenter().add(
+                island.toBukkitLocation(),
+                island.toBukkitLocation().add(
                         ((BreezilyIsland) island).getBreezilyIslandDirection().getDistance(distance),
                         ((BreezilyIsland) island).getBreezilyIslandHeight().getDelta(),
                         distance

@@ -1,11 +1,16 @@
 package dev.aabstractt.bridging.island;
 
 import com.google.common.collect.Maps;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import dev.aabstractt.bridging.island.chunk.PluginChunkRestoration;
+import dev.aabstractt.bridging.island.listener.BlockBreak;
+import dev.aabstractt.bridging.island.listener.BlockPlace;
 import dev.aabstractt.bridging.island.listener.BridgingListener;
+import dev.aabstractt.bridging.island.listener.PlayerMove;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.player.ModeData;
+import dev.aabstractt.bridging.utils.WorldEditUtils;
 import dev.aabstractt.bridging.utils.cuboid.Cuboid;
 import io.netty.util.internal.ConcurrentSet;
 import lombok.Data;
@@ -42,9 +47,42 @@ public abstract class Island {
     protected final @NonNull Set<@NonNull BridgingListener> listeners = new HashSet<>();
     protected final @NonNull Map<String, ChunkSection[]> chunks = Maps.newConcurrentMap();
 
-    public abstract @NonNull String getMode();
+    protected @Nullable BlockBreak blockBreakListener = null;
+    protected @Nullable BlockPlace blockPlaceListener = null;
+    protected @Nullable PlayerMove playerMoveListener = null;
 
     public abstract void firstJoin(@NonNull ModeData modeData);
+
+    public void load(@NonNull ModeData modeData) {
+        if (WorldEditUtils.BUKKIT_WORLD == null) {
+            throw new IllegalArgumentException("WorldEditUtils.BUKKIT_WORLD cannot be null");
+        }
+
+        this.center = new Location(WorldEditUtils.BUKKIT_WORLD, this.offset, 100, this.offset);
+
+        this.schematicName = modeData.getSchematicName();
+        Clipboard clipboard = WorldEditUtils.getClipboard(this.schematicName);
+
+        this.cuboid = WorldEditUtils.wrapCuboid(
+                this.center,
+                clipboard.getOrigin(),
+                clipboard.getMinimumPoint(),
+                clipboard.getMaximumPoint()
+        );
+        // TODO: Paste the clipboard
+    }
+
+    public void unload() {
+        this.updating = true;
+
+        this.chunks.clear();
+
+        this.members.clear();
+
+        this.blockBreakListener = null;
+        this.blockPlaceListener = null;
+        this.playerMoveListener = null;
+    }
 
     public void paste(@NonNull SchematicData schematicData) throws IllegalAccessException {
         if (this.schematicName == null) {
@@ -64,7 +102,7 @@ public abstract class Island {
         return this.chunks.getOrDefault(chunkHash, new ChunkSection[0]);
     }
 
-    public @NonNull Location getCenter() {
+    public @NonNull Location toBukkitLocation() {
         if (this.center == null) {
             throw new IllegalArgumentException("Island must have a center");
         }

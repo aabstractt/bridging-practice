@@ -15,30 +15,14 @@ public final class BreezilyIsland extends Island {
 
     public final static @NonNull String ORIGINAL_NAME = "Breezily";
 
-    private @NonNull BreezilyIslandDirection breezilyIslandDirection;
-    private @NonNull BreezilyIslandHeight breezilyIslandHeight;
-    private @NonNull BreezilyIslandHits breezilyIslandHits;
+    private @NonNull BreezilyIslandDirection breezilyIslandDirection = BreezilyIslandDirection.NORMAL;
+    private @NonNull BreezilyIslandHeight breezilyIslandHeight = BreezilyIslandHeight.NORMAL;
+    private @NonNull BreezilyIslandHits breezilyIslandHits = BreezilyIslandHits.SOMETHING;
 
-    public BreezilyIsland(
-            @NonNull UUID uniqueId,
-            @NonNull BreezilyIslandDirection breezilyIslandDirection,
-            @NonNull BreezilyIslandHeight breezilyIslandHeight,
-            @NonNull BreezilyIslandHits breezilyIslandHits
-    ) {
+    public BreezilyIsland(@NonNull UUID uniqueId) {
         super(uniqueId);
 
-        this.breezilyIslandDirection = breezilyIslandDirection;
-        this.breezilyIslandHeight = breezilyIslandHeight;
-        this.breezilyIslandHits = breezilyIslandHits;
-
-        this.listeners.add(
-                new BreezilyBlockPlace()
-        );
-    }
-
-    @Override
-    public @NonNull String getMode() {
-        return ORIGINAL_NAME;
+        this.blockPlaceListener = new BreezilyBlockPlace();
     }
 
     @Override
@@ -47,5 +31,14 @@ public final class BreezilyIsland extends Island {
                 .putString("height", BreezilyIslandHeight.NORMAL.name())
                 .putString("direction", BreezilyIslandDirection.NORMAL.name())
                 .putString("hits", BreezilyIslandHits.SOMETHING.name());
+    }
+
+    @Override
+    public void load(@NonNull ModeData modeData) {
+        this.breezilyIslandDirection = BreezilyIslandDirection.valueOf(modeData.getString("direction"));
+        this.breezilyIslandHeight = BreezilyIslandHeight.valueOf(modeData.getString("height"));
+        this.breezilyIslandHits = BreezilyIslandHits.valueOf(modeData.getString("hits"));
+
+        super.load(modeData);
     }
 }

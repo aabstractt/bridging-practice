@@ -1,16 +1,15 @@
 package dev.aabstractt.bridging.manager;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import dev.aabstractt.bridging.AbstractPlugin;
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.island.breezily.BreezilyIsland;
-import dev.aabstractt.bridging.island.breezily.BreezilyIslandDirection;
-import dev.aabstractt.bridging.island.breezily.BreezilyIslandHeight;
-import dev.aabstractt.bridging.island.breezily.BreezilyIslandHits;
 import dev.aabstractt.bridging.island.chunk.PluginChunkRestoration;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.player.ModeData;
+import dev.aabstractt.bridging.utils.JavaUtils;
 import dev.aabstractt.bridging.utils.WorldEditUtils;
 import lombok.Getter;
 import lombok.NonNull;
@@ -19,6 +18,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +26,10 @@ import java.util.concurrent.CompletableFuture;
 public final class IslandManager {
 
     @Getter private final static @NonNull IslandManager instance = new IslandManager();
+
+    private final Map<@NonNull String, Class<? extends Island>> islandTypes = ImmutableMap.<String, Class<? extends Island>>builder()
+            .put(BreezilyIsland.ORIGINAL_NAME, BreezilyIsland.class)
+            .build();
 
     private final @NonNull Callable<Integer> calculateAvailableOffset = () -> {
         if (!this.availableOffsets.isEmpty()) {
@@ -40,13 +44,13 @@ public final class IslandManager {
         return offset;
     };
 
-    private final @NonNull Map<String, SchematicData> schematicsData = new HashMap<>();
+    private final @NonNull Map<@NonNull String, @NonNull SchematicData> schematicsData = new HashMap<>();
 
     private final @NonNull List<@NonNull Integer> availableOffsets = new ArrayList<>();
-    private final @NonNull List<Integer> unavailableOffsets = new ArrayList<>();
+    private final @NonNull List<@NonNull Integer> unavailableOffsets = new ArrayList<>();
 
-    private final @NonNull Map<UUID, Island> islandsStored = Maps.newConcurrentMap();
-    private final @NonNull Map<UUID, UUID> islandIds = Maps.newConcurrentMap();
+    private final @NonNull Map<@NonNull UUID, @NonNull Island> islandsStored = Maps.newConcurrentMap();
+    private final @NonNull Map<@NonNull UUID, @NonNull UUID> islandIds = Maps.newConcurrentMap();
 
     public void init() {
         ConfigurationSection mainSection = AbstractPlugin.getInstance().getConfig().getConfigurationSection("types");
@@ -56,11 +60,12 @@ public final class IslandManager {
 
         for (String type : mainSection.getKeys(false)) {
             List<String> schematics = mainSection.getStringList(type);
-            if (schematics == null) continue;
-            if (schematics.isEmpty()) continue;
+            if (schematics == null || schematics.isEmpty()) {
+                continue;
+            }
 
             for (String schematicName : schematics) {
-                SchematicData schematicData = WorldEditUtils.wrapModeSchematic(type.toLowerCase(), schematicName);
+                SchematicData schematicData = WorldEditUtils.wrapSchematicData(type.toLowerCase(), schematicName);
                 if (schematicData == null) {
                     throw new UnsupportedOperationException("Unsupported mode: " + type);
                 }
@@ -94,7 +99,7 @@ public final class IslandManager {
 
         SchematicData schematicData = this.getSchematicData(bridgingPlayer.getCompleteSchematicName());
         if (schematicData == null) {
-            return AbstractPlugin.failedFuture(new NullPointerException("Cannot find schematic " + modeData.getSchematicName() + " for mode " + modeData.getName()));
+            return JavaUtils.failedFuture(new NullPointerException("Cannot find schematic " + modeData.getSchematicName() + " for mode " + modeData.getName()));
         }
 
         return CompletableFuture.supplyAsync(() -> {
@@ -105,6 +110,12 @@ public final class IslandManager {
 
             try {
                 finalIsland.setOffset(this.calculateAvailableOffset.call());
+
+                if (modeData.isEmpty()) {
+                    finalIsland.firstJoin(modeData);
+                }
+
+                finalIsland.load(modeData);
                 finalIsland.paste(schematicData);
 
                 AbstractPlugin.getInstance().getLogger().info(String.format(
@@ -123,10 +134,6 @@ public final class IslandManager {
 
             finalIsland.setOwnership(bridgingPlayer.getUniqueId());
             finalIsland.getMembers().add(bridgingPlayer.getUniqueId());
-
-            if (modeData.isEmpty()) {
-                finalIsland.firstJoin(modeData);
-            }
 
             return finalIsland;
         });
@@ -158,20 +165,20 @@ public final class IslandManager {
                 return;
             }
 
-            bukkitPlayer.teleport(newIsland.getCenter());
+            bukkitPlayer.teleport(newIsland.toBukkitLocation());
         });
     }
 
-    public void closeIsland(@NonNull BridgingPlayer bridgingPlayer) throws IllegalAccessException {
+    public void unloadIsland(@NonNull BridgingPlayer bridgingPlayer) throws IllegalAccessException {
         Island island = this.byPlayer(bridgingPlayer.toBukkitPlayer());
         if (island == null) {
             throw new IllegalAccessException("Cannot find island for " + bridgingPlayer.getName());
         }
 
-        this.closeIsland(island);
+        this.unloadIsland(island);
     }
 
-    public void closeIsland(@NonNull Island island) throws IllegalAccessException {
+    public void unloadIsland(@NonNull Island island) throws IllegalAccessException {
         UUID ownership = island.getOwnership();
         if (ownership == null) {
             throw new IllegalAccessException("Cannot find ownership for " + island.getId());
@@ -193,23 +200,23 @@ public final class IslandManager {
             this.createIsland(bridgingPlayer);
         });
 
-        island.getMembers().clear();
+        island.unload();
     }
 
     private @NonNull Island wrapIsland(
             @NonNull UUID uniqueId,
             @NonNull ModeData modeData
     ) {
-        if (modeData.getName().equals(BreezilyIsland.ORIGINAL_NAME)) {
-            return new BreezilyIsland(
-                    uniqueId,
-                    BreezilyIslandDirection.valueOf(modeData.getString("direction")),
-                    BreezilyIslandHeight.valueOf(modeData.getString("height")),
-                    BreezilyIslandHits.valueOf(modeData.getString("hits"))
-            );
+        Class<? extends Island> clazz = this.islandTypes.get(modeData.getName());
+        if (clazz == null) {
+            throw new UnsupportedOperationException("Cannot wrap island for " + modeData.getName());
         }
 
-        throw new UnsupportedOperationException("Cannot wrap island for " + modeData.getName());
+        try {
+            return clazz.getDeclaredConstructor(UUID.class).newInstance(uniqueId);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -6,6 +6,7 @@ import dev.aabstractt.bridging.island.chunk.PluginChunkRestoration;
 import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.utils.Messages;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -20,6 +21,7 @@ public final class ResetArgument extends Argument {
         super(name, usage, minArgs, permission);
     }
 
+    @SneakyThrows
     @Override
     public void execute(@NonNull CommandSender commandSender, @NonNull String[] args) {
         if (!(commandSender instanceof Player) && args.length == 0) {
@@ -36,7 +38,7 @@ public final class ResetArgument extends Argument {
         }
 
         if (!target.equals(commandSender) && !commandSender.hasPermission("island.admin.reset.others")) {
-            commandSender.sendMessage(ChatColor.RED + "You do not have permission to reset other players' islands.");
+            commandSender.sendMessage(ChatColor.RED + "You do not have permission to reset other player's island.");
 
             return;
         }
@@ -50,23 +52,39 @@ public final class ResetArgument extends Argument {
 
         island.setUpdating(true);
 
-        // TODO: Bad idea due to two for each loops unnecessarily when we can just do one.
-        Location center = island.getCenter();
-        island.membersForEach(bridgingPlayer -> bridgingPlayer.teleport(center));
-        island.broadcast(Messages.ADMIN_RESET_SUCCESS.build());
-
         try {
             PluginChunkRestoration.getInstance().reset(island);
 
+            Location bukkitLocation = island.toBukkitLocation();
+            String message = Messages.ADMIN_RESTORED_YOUR_ISLAND.build(
+                    target.getName(),
+                    String.valueOf(bukkitLocation.getBlockX()),
+                    String.valueOf(bukkitLocation.getBlockZ())
+            );
+
             commandSender.sendMessage(Messages.ADMIN_RESET_SUCCESS.build(
                     target.getName(),
-                    String.valueOf(center.getBlockX()),
-                    String.valueOf(center.getBlockZ())
+                    String.valueOf(bukkitLocation.getBlockX()),
+                    String.valueOf(bukkitLocation.getBlockZ())
             ));
+
+            island.membersForEach(bridgingPlayer -> {
+                Player bukkitPlayer = bridgingPlayer.toBukkitPlayer();
+                if (bukkitPlayer == null || !bukkitPlayer.isOnline()) {
+                    return;
+                }
+
+                bukkitPlayer.teleport(bukkitLocation);
+                bukkitPlayer.sendMessage(message);
+            });
 
             island.setUpdating(false);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            //commandSender.sendMessage(Messages.ADMIN_RESET_ERROR.build(target.getName()));
+
+            IslandManager.getInstance().unloadIsland(island);
+
+            e.fillInStackTrace();
         }
     }
 }
