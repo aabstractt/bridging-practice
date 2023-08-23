@@ -108,6 +108,9 @@ public final class IslandManager {
                     modeData
             );
 
+            finalIsland.setOwnership(bridgingPlayer.getUniqueId());
+            finalIsland.getMembers().add(bridgingPlayer.getUniqueId());
+
             try {
                 finalIsland.setOffset(this.calculateAvailableOffset.call());
 
@@ -131,9 +134,6 @@ public final class IslandManager {
 
             this.islandsStored.put(finalIsland.getId(), finalIsland);
             this.unavailableOffsets.add(finalIsland.getOffset());
-
-            finalIsland.setOwnership(bridgingPlayer.getUniqueId());
-            finalIsland.getMembers().add(bridgingPlayer.getUniqueId());
 
             return finalIsland;
         });

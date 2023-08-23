@@ -10,7 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
-import java.util.concurrent.CompletableFuture;
 
 public final class AbstractPlugin extends JavaPlugin {
 
@@ -52,7 +51,7 @@ public final class AbstractPlugin extends JavaPlugin {
     }
 
     public static @NonNull String getDefaultMode() {
-        return getInstance().getConfig().getString("default-mode", "solo");
+        return getInstance().getConfig().getString("default-mode", "Breezily");
     }
 
     public static boolean isSingleServer() {

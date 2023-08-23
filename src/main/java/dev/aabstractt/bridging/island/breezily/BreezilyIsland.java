@@ -27,7 +27,7 @@ public final class BreezilyIsland extends Island {
 
     @Override
     public void firstJoin(@NonNull ModeData modeData) {
-        modeData.putInt("distance", 3)
+        modeData.putInt("distance", 20)
                 .putString("height", BreezilyIslandHeight.NORMAL.name())
                 .putString("direction", BreezilyIslandDirection.NORMAL.name())
                 .putString("hits", BreezilyIslandHits.SOMETHING.name());
