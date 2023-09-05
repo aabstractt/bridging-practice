@@ -9,6 +9,7 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.island.schematic.impl.BreezilySchematicData;
 import dev.aabstractt.bridging.utils.cuboid.Cuboid;
+import lombok.Getter;
 import lombok.NonNull;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
 import org.bukkit.Bukkit;
@@ -29,7 +30,7 @@ public final class WorldEditUtils {
     public static @Nullable World BUKKIT_WORLD = null;
     private static @Nullable BukkitWorld FAWE_WORLD = null;
 
-    private static final @NonNull Map<String, Schematic> schematics = new HashMap<>();
+    @Getter private static final @NonNull Map<String, Schematic> schematics = new HashMap<>();
 
     public static void initializeSchematic(@NonNull String schematicName) {
         BUKKIT_WORLD = Bukkit.getWorld("bridges");
@@ -86,7 +87,7 @@ public final class WorldEditUtils {
 
         Schematic schematic = schematics.get(schematicName);
         if (schematic == null) {
-            throw new NullPointerException("Schematic is null");
+            throw new NullPointerException("Schematic " + schematicName + " is null");
         }
 
         Clipboard clipboard = schematic.getClipboard();
@@ -109,7 +110,7 @@ public final class WorldEditUtils {
         String firstSchematicName = mode + "-" + originalName + "-start";
         String secondSchematicName = mode + "-" + originalName + "-end";
 
-        if (mode.equals("breezily")) {
+        if (mode.equals("Breezily")) {
             return new BreezilySchematicData(
                     mode,
                     originalName,

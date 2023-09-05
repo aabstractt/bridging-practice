@@ -61,11 +61,12 @@ public final class IslandManager {
         for (String type : mainSection.getKeys(false)) {
             List<String> schematics = mainSection.getStringList(type);
             if (schematics == null || schematics.isEmpty()) {
+                System.out.println("Not found");
                 continue;
             }
 
             for (String schematicName : schematics) {
-                SchematicData schematicData = WorldEditUtils.wrapSchematicData(type.toLowerCase(), schematicName);
+                SchematicData schematicData = WorldEditUtils.wrapSchematicData(type, schematicName);
                 if (schematicData == null) {
                     throw new UnsupportedOperationException("Unsupported mode: " + type);
                 }
@@ -91,6 +92,9 @@ public final class IslandManager {
         return this.islandsStored.get(islandUniqueId);
     }
 
+    /**
+     *
+     */
     public @NonNull CompletableFuture<@NonNull Island> findOne(@NonNull BridgingPlayer bridgingPlayer, @NonNull ModeData modeData) {
         Island island = this.byPlayer(bridgingPlayer.toBukkitPlayer());
         if (island != null) {
@@ -113,24 +117,33 @@ public final class IslandManager {
 
             try {
                 finalIsland.setOffset(this.calculateAvailableOffset.call());
-
-                if (modeData.isEmpty()) {
-                    finalIsland.firstJoin(modeData);
-                }
-
-                finalIsland.load(modeData);
-                finalIsland.paste(schematicData);
-
-                AbstractPlugin.getInstance().getLogger().info(String.format(
-                        "[Standalone Island] - %s placed at %s, %s. %s total islands",
-                        finalIsland.getId(),
-                        finalIsland.getOffset(),
-                        finalIsland.getOffset(),
-                        this.islandIds.size()
-                ));
             } catch (Exception e) {
-                throw new UnsupportedOperationException("Cannot allocate a new island", e);
+                throw new RuntimeException(e);
             }
+
+            if (modeData.isEmpty()) {
+                finalIsland.firstJoin(modeData);
+            }
+
+            Bukkit.getScheduler().runTask(AbstractPlugin.getInstance(), () -> {
+                try {
+                    finalIsland.load(modeData, schematicData);
+
+                    AbstractPlugin.getInstance().getLogger().info(String.format(
+                            "[Standalone Island] - %s placed at %s, %s. %s total islands",
+                            finalIsland.getId(),
+                            finalIsland.getOffset(),
+                            finalIsland.getOffset(),
+                            this.islandIds.size()
+                    ));
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                    throw new UnsupportedOperationException("Cannot allocate a new island", e);
+                }
+            });
+
+            this.islandIds.put(bridgingPlayer.getUniqueId(), finalIsland.getId());
 
             this.islandsStored.put(finalIsland.getId(), finalIsland);
             this.unavailableOffsets.add(finalIsland.getOffset());
@@ -140,28 +153,26 @@ public final class IslandManager {
     }
 
     public void createIsland(@NonNull BridgingPlayer bridgingPlayer) {
-        Player bukkitPlayer = bridgingPlayer.toBukkitPlayer();
-        if (bukkitPlayer == null) {
-            return;
-        }
-
-        bukkitPlayer.teleport(AbstractPlugin.getInstance().getSpawnLocation());
-
         this.findOne(
                 bridgingPlayer,
                 bridgingPlayer.getModeData(bridgingPlayer.getMode())
         ).whenComplete((newIsland, throwable) -> {
-            if (!bukkitPlayer.isOnline()) return;
+            if (throwable != null) {
+                Bukkit.getLogger().severe("Cannot find island for " + bridgingPlayer.getName() + ", reason " + throwable.getMessage());
+
+                return;
+            }
 
             if (!bridgingPlayer.isJoined()) {
                 return;
             }
 
-            if (throwable != null) {
-                bukkitPlayer.kickPlayer("Cannot find island");
+            Player bukkitPlayer = bridgingPlayer.toBukkitPlayer();
+            if (bukkitPlayer == null) {
+                return;
+            }
 
-                Bukkit.getLogger().severe("Cannot find island for " + bridgingPlayer.getName());
-
+            if (!bukkitPlayer.isOnline()) {
                 return;
             }
 

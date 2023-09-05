@@ -10,6 +10,7 @@ import dev.aabstractt.bridging.island.listener.PlayerMove;
 import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.BridgingPlayer;
 import dev.aabstractt.bridging.player.ModeData;
+import dev.aabstractt.bridging.utils.JavaUtils;
 import dev.aabstractt.bridging.utils.WorldEditUtils;
 import dev.aabstractt.bridging.utils.cuboid.Cuboid;
 import io.netty.util.internal.ConcurrentSet;
@@ -33,6 +34,9 @@ public abstract class Island {
     protected final @NonNull UUID id;
 
     protected @Nullable Location center = null;
+
+    protected @Nullable Cuboid firstCuboid = null;
+    protected @Nullable Cuboid secondCuboid = null;
     protected @Nullable Cuboid cuboid = null;
 
     protected @Nullable String schematicName = null;
@@ -53,7 +57,7 @@ public abstract class Island {
 
     public abstract void firstJoin(@NonNull ModeData modeData);
 
-    public void load(@NonNull ModeData modeData) {
+    public void load(@NonNull ModeData modeData, @NonNull SchematicData schematicData) throws IllegalAccessException {
         if (WorldEditUtils.BUKKIT_WORLD == null) {
             throw new IllegalArgumentException("WorldEditUtils.BUKKIT_WORLD cannot be null");
         }
@@ -61,15 +65,39 @@ public abstract class Island {
         this.center = new Location(WorldEditUtils.BUKKIT_WORLD, this.offset, 100, this.offset);
 
         this.schematicName = modeData.getSchematicName();
-        Clipboard clipboard = WorldEditUtils.getClipboard(this.schematicName);
 
-        this.cuboid = WorldEditUtils.wrapCuboid(
+        Clipboard clipboard = WorldEditUtils.getClipboard(schematicData.getFirstSchematicName());
+        this.firstCuboid = WorldEditUtils.wrapCuboid(
                 this.center,
                 clipboard.getOrigin(),
                 clipboard.getMinimumPoint(),
                 clipboard.getMaximumPoint()
         );
-        // TODO: Paste the clipboard
+
+        clipboard = WorldEditUtils.getClipboard(schematicData.getSecondSchematicName());
+        this.secondCuboid = WorldEditUtils.wrapCuboid(
+                this.center,
+                clipboard.getOrigin(),
+                clipboard.getMinimumPoint(),
+                clipboard.getMaximumPoint()
+        );
+
+        this.cuboid = new Cuboid(
+                JavaUtils.minLocation(this.firstCuboid.getUpperSW(), this.secondCuboid.getUpperSW()),
+                JavaUtils.maxLocation(this.firstCuboid.getLowerNE(), this.secondCuboid.getLowerNE())
+        );
+
+        this.paste(schematicData);
+    }
+
+    public void paste(@NonNull SchematicData schematicData) throws IllegalAccessException {
+        if (this.schematicName == null) {
+            throw new IllegalArgumentException("Island must have a schematic name");
+        }
+
+        PluginChunkRestoration.getInstance().copy(this);
+
+        schematicData.paste(this);
     }
 
     public void unload() {
@@ -82,16 +110,6 @@ public abstract class Island {
         this.blockBreakListener = null;
         this.blockPlaceListener = null;
         this.playerMoveListener = null;
-    }
-
-    public void paste(@NonNull SchematicData schematicData) throws IllegalAccessException {
-        if (this.schematicName == null) {
-            throw new IllegalArgumentException("Island must have a schematic name");
-        }
-
-        PluginChunkRestoration.getInstance().copy(this);
-
-        schematicData.paste(this);
     }
 
     public void registerChunkSections(@NonNull String chunkHash, @NonNull ChunkSection[] chunkSections) {

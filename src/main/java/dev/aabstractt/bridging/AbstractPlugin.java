@@ -1,12 +1,14 @@
 package dev.aabstractt.bridging;
 
 import dev.aabstractt.bridging.command.BaseCommandExecutor;
+import dev.aabstractt.bridging.command.admin.ListArgument;
 import dev.aabstractt.bridging.command.admin.ResetArgument;
 import dev.aabstractt.bridging.listener.*;
 import dev.aabstractt.bridging.manager.IslandManager;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.WorldCreator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
@@ -29,10 +31,13 @@ public final class AbstractPlugin extends JavaPlugin {
 
         this.saveDefaultConfig();
 
+        WorldCreator.name("bridges").createWorld();
+
         IslandManager.getInstance().init();
 
         this.getServer().getPluginCommand("islandadmin").setExecutor(new BaseCommandExecutor("/<label> help")
-                .addArgument(new ResetArgument("reset", "/<label> reset <player>", 2, "island.admin.reset"))
+                .addArgument(new ResetArgument("reset", "/<label> reset <player>", 1, "island.admin.reset"))
+                .addArgument(new ListArgument("list", "/<label> list", 0, "island.admin.list"))
         );
 
         this.getServer().getPluginManager().registerEvents(new AsyncPlayerPreLoginListener(), this);

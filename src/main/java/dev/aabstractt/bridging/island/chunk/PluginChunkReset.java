@@ -59,9 +59,9 @@ public final class PluginChunkReset {
         Field field = clazz.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
 
-        Field modifiers = Field.class.getDeclaredField("modifiers");
+        /*Field modifiers = Field.class.getDeclaredField("modifiers");
         modifiers.setAccessible(true);
-        modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);*/
 
         field.set(clazz, value);
     }

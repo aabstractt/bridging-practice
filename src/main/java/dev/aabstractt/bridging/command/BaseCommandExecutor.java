@@ -8,6 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,30 +36,31 @@ public final class BaseCommandExecutor implements CommandExecutor {
         if (args.length == 0) {
             commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', this.commandUsage.replace("<label>", s)));
 
-            return false;
+            return true;
         }
 
         Argument argument = this.getArgumentByName(args[0]);
         if (argument == null) {
             commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', this.commandUsage.replace("<label>", s)));
 
-            return false;
+            return true;
         }
 
         if (argument.getPermission() != null && !commandSender.hasPermission(argument.getPermission())) {
             commandSender.sendMessage(ChatColor.RED + "You do not have permission to execute this command.");
 
-            return false;
+            return true;
         }
 
-        if (args.length < argument.getMinArgs()) {
+        String[] copyArgs = Arrays.copyOfRange(args, 1, args.length);
+        if (copyArgs.length < argument.getMinArgs()) {
             commandSender.sendMessage(ChatColor.RED + "Usage: " + argument.getUsage().replace("<label>", s));
 
-            return false;
+            return true;
         }
 
-        argument.execute(commandSender, args);
+        argument.execute(commandSender, copyArgs);
 
-        return false;
+        return true;
     }
 }

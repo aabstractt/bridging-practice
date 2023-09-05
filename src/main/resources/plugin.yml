@@ -6,7 +6,6 @@ author: bajowkarz
 commands:
   islandadmin:
     description: Admin command for the island plugin
-    usage: /islandadmin <command> [args]
     aliases: [isadmin]
     permission: bridging.admin
     permission-message: You do not have permission to use this command

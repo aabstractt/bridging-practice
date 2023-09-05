@@ -2,6 +2,7 @@ package dev.aabstractt.bridging.island.breezily;
 
 import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.island.breezily.listener.BreezilyBlockPlace;
+import dev.aabstractt.bridging.island.schematic.SchematicData;
 import dev.aabstractt.bridging.player.ModeData;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,11 +35,11 @@ public final class BreezilyIsland extends Island {
     }
 
     @Override
-    public void load(@NonNull ModeData modeData) {
+    public void load(@NonNull ModeData modeData, @NonNull SchematicData schematicData) throws IllegalAccessException {
         this.breezilyIslandDirection = BreezilyIslandDirection.valueOf(modeData.getString("direction"));
         this.breezilyIslandHeight = BreezilyIslandHeight.valueOf(modeData.getString("height"));
         this.breezilyIslandHits = BreezilyIslandHits.valueOf(modeData.getString("hits"));
 
-        super.load(modeData);
+        super.load(modeData, schematicData);
     }
 }

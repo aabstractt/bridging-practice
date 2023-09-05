@@ -36,17 +36,21 @@ public final class PlayerJoinListener implements Listener {
 
         Island island = IslandManager.getInstance().byPlayer(bukkitPlayer);
         if (island == null) {
+            System.out.println("We not have island!");
             return;
         }
 
         if (!Objects.equals(island.getOwnership(), bukkitPlayer.getUniqueId())) {
+            System.out.println("Non owner!");
             return;
         }
 
         if (island.isInsideCuboid(bukkitPlayer.getLocation())) {
+            System.out.println("Im inside!");
             return;
         }
 
+        System.out.println("teleporting");
         bukkitPlayer.teleport(island.toBukkitLocation());
 
         WorldEditUtils.sendChunkPacket(
