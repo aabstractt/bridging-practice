@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
@@ -98,8 +99,12 @@ public final class WorldEditUtils {
         return clipboard;
     }
 
-    public static void sendChunkPacket(@NonNull CraftChunk chunk, @NonNull Player... bukkitPlayers) {
-        PacketPlayOutMapChunk packetPlayOutMapChunk = new PacketPlayOutMapChunk(chunk.getHandle(), true, 20);
+    public static void sendChunkPacket(@NonNull Chunk chunk, @NonNull Player... bukkitPlayers) {
+        if (!(chunk instanceof CraftChunk)) {
+            throw new IllegalArgumentException("Chunk must be a CraftChunk");
+        }
+
+        PacketPlayOutMapChunk packetPlayOutMapChunk = new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), true, 20);
 
         for (Player bukkitPlayer : bukkitPlayers) {
             ((CraftPlayer) bukkitPlayer).getHandle().playerConnection.sendPacket(packetPlayOutMapChunk);

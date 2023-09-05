@@ -5,12 +5,14 @@ import dev.aabstractt.bridging.island.Island;
 import dev.aabstractt.bridging.island.chunk.PluginChunkRestoration;
 import dev.aabstractt.bridging.manager.IslandManager;
 import dev.aabstractt.bridging.utils.Messages;
+import dev.aabstractt.bridging.utils.WorldEditUtils;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -76,6 +78,11 @@ public final class ResetArgument extends Argument {
 
                 bukkitPlayer.teleport(bukkitLocation);
                 bukkitPlayer.sendMessage(message);
+
+                WorldEditUtils.sendChunkPacket(
+                        bukkitPlayer.getWorld().getChunkAt(bukkitPlayer.getLocation()),
+                        bukkitPlayer
+                );
             });
 
             island.setUpdating(false);
